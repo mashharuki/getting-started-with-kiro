@@ -1,0 +1,131 @@
+# 基本的なCI設定 - 個人プロジェクト・学習用
+# 使用方法: cp templates/cicd/github-actions/basic-ci.yml .github/workflows/ci.yml
+
+name: Basic CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '[NODE_VERSION]'  # 例: '18'
+  PROJECT_NAME: '[PROJECT_NAME]'  # 例: 'my-awesome-project'
+
+jobs:
+  # コード品質チェック
+  code-quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run ESLint
+      run: npm run lint
+    
+    - name: Check code formatting
+      run: npm run format:check
+    
+    - name: Run TypeScript check
+      run: npm run type-check
+
+  # テスト実行
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: code-quality
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run unit tests
+      run: npm run test:unit
+    
+    - name: Generate coverage report
+      run: npm run test:coverage
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: ${{ env.PROJECT_NAME }}-coverage
+
+  # ビルド確認
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [code-quality, test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application
+      run: npm run build
+    
+    - name: Check build output
+      run: |
+        if [ -d "dist" ] || [ -d "build" ]; then
+          echo "Build successful"
+          ls -la dist/ || ls -la build/
+        else
+          echo "Build output not found"
+          exit 1
+        fi
+
+  # 通知
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [code-quality, test, build]
+    if: always()
+    
+    steps:
+    - name: Notify success
+      if: success()
+      run: |
+        echo "✅ All checks passed successfully!"
+        echo "Project: ${{ env.PROJECT_NAME }}"
+        echo "Commit: ${{ github.sha }}"
+        echo "Author: ${{ github.actor }}"
+    
+    - name: Notify failure
+      if: failure()
+      run: |
+        echo "❌ Some checks failed!"
+        echo "Project: ${{ env.PROJECT_NAME }}"
+        echo "Commit: ${{ github.sha }}"
+        echo "Author: ${{ github.actor }}"
+        echo "Please check the logs and fix the issues."

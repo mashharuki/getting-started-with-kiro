@@ -1,0 +1,84 @@
+{
+  "_comment": "Webアプリケーション開発用MCP設定",
+  "_description": "フルスタックWeb開発に必要なMCPサーバーを含む設定",
+  "_usage": "cp templates/mcp/web-development.json .kiro/settings/mcp.json",
+  "_customization": [
+    "[PROJECT_NAME] を実際のプロジェクト名に置換",
+    "[AWS_REGION] を使用するAWSリージョンに置換",
+    "[GITHUB_TOKEN] をGitHubトークンに置換（必要に応じて）"
+  ],
+  
+  "mcpServers": {
+    "awslabs.aws-documentation-mcp-server": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR",
+        "AWS_DOCUMENTATION_PARTITION": "aws",
+        "AWS_REGION": "[AWS_REGION]"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "read_documentation",
+        "search_documentation"
+      ]
+    },
+    
+    "github-mcp": {
+      "command": "uvx",
+      "args": ["mcp-server-github@latest"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "[GITHUB_TOKEN]",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "search_repositories",
+        "get_repository",
+        "list_issues"
+      ]
+    },
+    
+    "playwright-mcp": {
+      "command": "uvx",
+      "args": ["mcp-server-playwright@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR",
+        "PLAYWRIGHT_HEADLESS": "true"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "navigate",
+        "screenshot",
+        "get_page_content"
+      ]
+    },
+    
+    "docker-mcp": {
+      "command": "uvx",
+      "args": ["mcp-server-docker@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "list_containers",
+        "get_container_logs"
+      ]
+    },
+    
+    "database-mcp": {
+      "command": "uvx",
+      "args": ["mcp-server-postgres@latest"],
+      "env": {
+        "DATABASE_URL": "postgresql://localhost:5432/[PROJECT_NAME]",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "describe_tables",
+        "execute_query"
+      ]
+    }
+  }
+}

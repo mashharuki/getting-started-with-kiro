@@ -1,0 +1,315 @@
+# デプロイメントパイプライン - AWS ECSへの自動デプロイ
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REPOSITORY_BACKEND: task-app-backend
+  ECR_REPOSITORY_FRONTEND: task-app-frontend
+  ECS_SERVICE_BACKEND: task-app-backend-service
+  ECS_SERVICE_FRONTEND: task-app-frontend-service
+  ECS_CLUSTER: task-app-cluster
+
+jobs:
+  # 環境設定
+  setup:
+    name: Setup Environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+      
+    steps:
+    - name: Determine environment
+      id: env
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+        elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          echo "environment=production" >> $GITHUB_OUTPUT
+        else
+          echo "environment=staging" >> $GITHUB_OUTPUT
+        fi
+
+  # Docker イメージのビルドとプッシュ
+  build-and-push:
+    name: Build and Push Images
+    runs-on: ubuntu-latest
+    needs: setup
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build and push backend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        file: ./docker/backend.Dockerfile
+        push: true
+        tags: |
+          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_BACKEND }}:latest
+          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_BACKEND }}:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./docker/frontend.Dockerfile
+        push: true
+        tags: |
+          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_FRONTEND }}:latest
+          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_FRONTEND }}:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          VITE_API_URL=${{ secrets.API_URL }}
+          VITE_WS_URL=${{ secrets.WS_URL }}
+
+  # データベースマイグレーション
+  migrate-database:
+    name: Database Migration
+    runs-on: ubuntu-latest
+    needs: [setup, build-and-push]
+    environment: ${{ needs.setup.outputs.environment }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: cd backend && npm ci
+    
+    - name: Run database migrations
+      run: cd backend && npx prisma migrate deploy
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  # ECSサービスのデプロイ
+  deploy-backend:
+    name: Deploy Backend to ECS
+    runs-on: ubuntu-latest
+    needs: [setup, build-and-push, migrate-database]
+    environment: ${{ needs.setup.outputs.environment }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+    
+    - name: Download task definition
+      run: |
+        aws ecs describe-task-definition \
+          --task-definition task-app-backend-${{ needs.setup.outputs.environment }} \
+          --query taskDefinition > task-definition-backend.json
+    
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def-backend
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition-backend.json
+        container-name: backend
+        image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_BACKEND }}:${{ github.sha }}
+    
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def-backend.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE_BACKEND }}-${{ needs.setup.outputs.environment }}
+        cluster: ${{ env.ECS_CLUSTER }}-${{ needs.setup.outputs.environment }}
+        wait-for-service-stability: true
+
+  deploy-frontend:
+    name: Deploy Frontend to ECS
+    runs-on: ubuntu-latest
+    needs: [setup, build-and-push, deploy-backend]
+    environment: ${{ needs.setup.outputs.environment }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+    
+    - name: Download task definition
+      run: |
+        aws ecs describe-task-definition \
+          --task-definition task-app-frontend-${{ needs.setup.outputs.environment }} \
+          --query taskDefinition > task-definition-frontend.json
+    
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def-frontend
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition-frontend.json
+        container-name: frontend
+        image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_FRONTEND }}:${{ github.sha }}
+    
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def-frontend.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE_FRONTEND }}-${{ needs.setup.outputs.environment }}
+        cluster: ${{ env.ECS_CLUSTER }}-${{ needs.setup.outputs.environment }}
+        wait-for-service-stability: true
+
+  # デプロイ後のヘルスチェック
+  health-check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-backend, deploy-frontend]
+    
+    steps:
+    - name: Wait for deployment
+      run: sleep 60
+    
+    - name: Health check - Backend
+      run: |
+        for i in {1..10}; do
+          if curl -f ${{ secrets.API_URL }}/health; then
+            echo "Backend health check passed"
+            break
+          fi
+          echo "Attempt $i failed, retrying in 30 seconds..."
+          sleep 30
+        done
+    
+    - name: Health check - Frontend
+      run: |
+        for i in {1..10}; do
+          if curl -f ${{ secrets.FRONTEND_URL }}; then
+            echo "Frontend health check passed"
+            break
+          fi
+          echo "Attempt $i failed, retrying in 30 seconds..."
+          sleep 30
+        done
+    
+    - name: Run smoke tests
+      run: |
+        # 基本的なAPIエンドポイントのテスト
+        curl -f ${{ secrets.API_URL }}/api/health
+        curl -f ${{ secrets.API_URL }}/api/auth/status
+
+  # CloudFrontキャッシュの無効化
+  invalidate-cache:
+    name: Invalidate CloudFront Cache
+    runs-on: ubuntu-latest
+    needs: [setup, health-check]
+    if: needs.setup.outputs.environment == 'production'
+    
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Invalidate CloudFront distribution
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+          --paths "/*"
+
+  # 通知とロールバック準備
+  notify-and-prepare-rollback:
+    name: Notify and Prepare Rollback
+    runs-on: ubuntu-latest
+    needs: [setup, health-check]
+    if: always()
+    
+    steps:
+    - name: Notify Slack on success
+      if: success()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        text: |
+          🚀 Deployment to ${{ needs.setup.outputs.environment }} completed successfully!
+          
+          Environment: ${{ needs.setup.outputs.environment }}
+          Commit: ${{ github.sha }}
+          Author: ${{ github.actor }}
+          
+          Frontend: ${{ secrets.FRONTEND_URL }}
+          API: ${{ secrets.API_URL }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    
+    - name: Notify Slack on failure
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        text: |
+          ❌ Deployment to ${{ needs.setup.outputs.environment }} failed!
+          
+          Environment: ${{ needs.setup.outputs.environment }}
+          Commit: ${{ github.sha }}
+          Author: ${{ github.actor }}
+          
+          Please check the logs and consider rollback if necessary.
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    
+    - name: Prepare rollback information
+      if: failure()
+      run: |
+        echo "Previous stable version information for rollback:"
+        echo "Backend image: ${{ env.ECR_REPOSITORY_BACKEND }}:stable"
+        echo "Frontend image: ${{ env.ECR_REPOSITORY_FRONTEND }}:stable"
+        echo "Use these images to rollback if necessary"

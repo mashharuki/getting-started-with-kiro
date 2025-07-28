@@ -1,0 +1,18 @@
+{
+  "_comment": "基本的なMCP設定 - 学習・個人プロジェクト用",
+  "_description": "最小限のMCP設定で、Kiroの学習や小規模プロジェクトに適用",
+  "_usage": "cp templates/mcp/basic-mcp.json .kiro/settings/mcp.json",
+  
+  "mcpServers": {
+    "awslabs.aws-documentation-mcp-server": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR",
+        "AWS_DOCUMENTATION_PARTITION": "aws"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
