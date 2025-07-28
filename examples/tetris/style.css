@@ -1,0 +1,266 @@
+/* テトリスゲームのスタイル定義 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+}
+
+.game-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+}
+
+.game-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.game-header h1 {
+    font-size: 2.5em;
+    color: #4a5568;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-info {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.score-section, .level-section, .lines-section {
+    text-align: center;
+    background: #f7fafc;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+}
+
+.score-section h3, .level-section h3, .lines-section h3 {
+    font-size: 0.9em;
+    color: #718096;
+    margin-bottom: 5px;
+}
+
+.score-section div, .level-section div, .lines-section div {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.game-main {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.game-board-container {
+    position: relative;
+}
+
+#gameBoard {
+    border: 3px solid #4a5568;
+    border-radius: 8px;
+    background: #1a202c;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 2px solid #e53e3e;
+}
+
+.game-over h2 {
+    color: #e53e3e;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+.game-over p {
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    color: #4a5568;
+}
+
+.hidden {
+    display: none;
+}
+
+.game-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 200px;
+}
+
+.next-piece-section, .controls-section {
+    background: #f7fafc;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+}
+
+.next-piece-section h3, .controls-section h3 {
+    margin-bottom: 10px;
+    color: #4a5568;
+    font-size: 1.1em;
+}
+
+#nextPiece {
+    border: 2px solid #cbd5e0;
+    border-radius: 5px;
+    background: #1a202c;
+    display: block;
+    margin: 0 auto;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+}
+
+.key {
+    background: #4a5568;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.8em;
+    min-width: 50px;
+    text-align: center;
+}
+
+.action {
+    color: #718096;
+}
+
+.game-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+button {
+    background: #4299e1;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+button:hover {
+    background: #3182ce;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#restartBtn {
+    background: #48bb78;
+}
+
+#restartBtn:hover {
+    background: #38a169;
+}
+
+#pauseBtn {
+    background: #ed8936;
+}
+
+#pauseBtn:hover {
+    background: #dd6b20;
+}
+
+#newGameBtn {
+    background: #9f7aea;
+}
+
+#newGameBtn:hover {
+    background: #805ad5;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .game-container {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .game-main {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .game-info {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .game-sidebar {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .controls-section {
+        order: -1;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-header h1 {
+        font-size: 2em;
+    }
+    
+    #gameBoard {
+        width: 250px;
+        height: 500px;
+    }
+    
+    .game-info {
+        gap: 10px;
+    }
+    
+    .score-section, .level-section, .lines-section {
+        padding: 8px 15px;
+    }
+}
