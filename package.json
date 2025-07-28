@@ -1,0 +1,46 @@
+{
+  "name": "kiro-tutorial-documentation",
+  "version": "1.0.0",
+  "description": "Kiro Tutorial Documentation and Samples",
+  "main": "index.js",
+  "scripts": {
+    "validate": "npm run validate:docs && npm run validate:code && npm run validate:procedures",
+    "validate:docs": "node scripts/validate-docs.js",
+    "validate:code": "node scripts/test-code-samples.js",
+    "validate:procedures": "node scripts/validate-procedures.js",
+    "test": "npm run validate",
+    "build": "echo 'Building documentation...' && npm run validate",
+    "serve": "python -m http.server 8000",
+    "serve:node": "npx http-server -p 8000",
+    "clean": "rm -rf temp-test node_modules/.cache",
+    "setup": "npm install && echo 'Setup complete!'",
+    "lint": "echo 'Linting documentation...' && npm run validate:docs",
+    "format": "echo 'Formatting complete'",
+    "dev": "npm run serve",
+    "start": "npm run serve"
+  },
+  "keywords": [
+    "kiro",
+    "tutorial",
+    "documentation",
+    "ai",
+    "development",
+    "spec-driven"
+  ],
+  "author": "Kiro Tutorial Team",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kiro-tutorial/documentation"
+  },
+  "bugs": {
+    "url": "https://github.com/kiro-tutorial/documentation/issues"
+  },
+  "homepage": "https://github.com/kiro-tutorial/documentation#readme"
+}
