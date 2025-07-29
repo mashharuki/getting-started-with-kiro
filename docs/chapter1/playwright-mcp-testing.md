@@ -415,16 +415,16 @@ MCPを活用することで、開発プロセスに自動テストをシーム�
 
 ---
 
-## 🧭 ナビゲーション
+<div align="center">
 
-| 前へ | 目次 | 次へ |
-|------|------|------|
-| [🎮 1.2 テトリス作成](tetris-tutorial.md) | [📖 目次](../../README.md) | [💡 2.1 AI相談](../chapter2/ai-consultation.md) |
+| [← 🎮 テトリス作成](tetris-tutorial.md) | [🏠 目次](../../README.md) | [💡 AI相談 →](../chapter2/ai-consultation.md) |
+|:---:|:---:|:---:|
 
-### 📍 現在の位置
-**第1章: はじめてのKiro** > **1.3 Playwright MCPテスト** ← 現在ここ
+</div>
 
-### 🔗 関連リンク
+---
+
+### 🔗 関連リソース
 - [⚙️ MCP設定テンプレート](../../templates/mcp/)
 - [🛠️ トラブルシューティング](../troubleshooting/common-issues.md)
 - [❓ FAQ](../troubleshooting/faq.md)

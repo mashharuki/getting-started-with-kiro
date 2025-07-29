@@ -648,16 +648,16 @@ try {
 
 ---
 
-## 🧭 ナビゲーション
+<div align="center">
 
-| 前へ | 目次 | 次へ |
-|------|------|------|
-| [📝 2.5-2.8 設計・レビュー・CI/CD](design-review-implementation.md) | [📖 目次](../../README.md) | [📤 2.13-2.15 Git・PR・E2E](git-pr-workflow.md) |
+| [← 📝 設計・レビュー・実装](design-review-implementation.md) | [🏠 目次](../../README.md) | [🔀 Git PR →](git-pr-workflow.md) |
+|:---:|:---:|:---:|
 
-### 📍 現在の位置
-**第2章: 本格的なアプリを作ろう** > **2.9-2.12 実装・テスト・自動化** ← 現在ここ
+</div>
 
-### 🔗 関連リンク
+---
+
+### 🔗 関連リソース
 - [🌐 Webアプリ完成版](../../examples/webapp-backup/)
 - [🛠️ トラブルシューティング](../troubleshooting/common-issues.md)
 - [❓ FAQ](../troubleshooting/faq.md)

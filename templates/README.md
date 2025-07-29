@@ -169,3 +169,19 @@ find .kiro/ -type f -name "*.md" -o -name "*.json" | xargs sed -i "s|\[REPOSITOR
 ## 📄 ライセンス
 
 これらのテンプレートは学習目的で作成されており、自由に使用・改変していただけます。
+
+---
+
+<div align="center">
+
+| [🏠 目次](../README.md) |
+|:---:|
+
+</div>
+
+---
+
+### 🔗 関連リソース
+- [📖 Kiroドキュメント](../docs/)
+- [🛠️ トラブルシューティング](../docs/troubleshooting/common-issues.md)
+- [❓ FAQ](../docs/troubleshooting/faq.md)

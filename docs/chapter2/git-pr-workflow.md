@@ -819,16 +819,16 @@ Git連携とPRワークフローの最適化により：
 
 ---
 
-## 🧭 ナビゲーション
+<div align="center">
 
-| 前へ | 目次 | 次へ |
-|------|------|------|
-| [💻 2.9-2.12 実装・テスト](implementation-testing.md) | [📖 目次](../../README.md) | [🤝 3.1 チーム開発セットアップ](../chapter3/team-development-setup.md) |
+| [← 💻 実装・テスト](implementation-testing.md) | [🏠 目次](../../README.md) | [🤝 チーム開発セットアップ →](../chapter3/team-development-setup.md) |
+|:---:|:---:|:---:|
 
-### 📍 現在の位置
-**第2章: 本格的なアプリを作ろう** > **2.13-2.15 Git連携・PR・E2E** ← 現在ここ
+</div>
 
-### 🔗 関連リンク
+---
+
+### 🔗 関連リソース
 - [🎭 Playwright MCP設定](../chapter1/playwright-mcp-testing.md)
 - [📁 CI/CDテンプレート](../../templates/cicd/)
 - [🛠️ トラブルシューティング](../troubleshooting/common-issues.md)

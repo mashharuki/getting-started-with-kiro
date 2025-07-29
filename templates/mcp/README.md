@@ -221,3 +221,19 @@ MCPサーバーの変更が反映されない
 - v1.0.0: 初期テンプレート作成
 - v1.1.0: AWS中心設定を追加
 - v1.2.0: モバイル開発用設定を追加
+
+---
+
+<div align="center">
+
+| [← テンプレート一覧](../README.md) | [🏠 目次](../../README.md) |
+|:---:|:---:|
+
+</div>
+
+---
+
+### 🔗 関連リソース
+- [🧪 Playwright MCPテスト](../../docs/chapter1/playwright-mcp-testing.md)
+- [⚙️ AWS MCP設定](../../docs/chapter2/aws-mcp-setup.md)
+- [🛠️ トラブルシューティング](../../docs/troubleshooting/common-issues.md)

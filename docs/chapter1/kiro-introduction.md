@@ -188,16 +188,16 @@ Kiroは単なるAIコーディングツールではなく、開発プロセス�
 
 ---
 
-## 🧭 ナビゲーション
+<div align="center">
 
-| 前へ | 目次 | 次へ |
-|------|------|------|
-| - | [📖 目次](../../README.md) | [🎮 1.2 テトリス作成](tetris-tutorial.md) |
+| [🏠 目次](../../README.md) | [🎮 テトリス作成 →](tetris-tutorial.md) |
+|:---:|:---:|
 
-### 📍 現在の位置
-**第1章: はじめてのKiro** > **1.1 Kiro解説** ← 現在ここ
+</div>
 
-### 🔗 関連リンク
+---
+
+### 🔗 関連リソース
 - [🛠️ トラブルシューティング](../troubleshooting/common-issues.md)
 - [❓ FAQ](../troubleshooting/faq.md)
 - [📁 サンプルプロジェクト](../../examples/)

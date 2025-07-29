@@ -364,16 +364,16 @@ python -m http.server 8080
 
 ---
 
-## 🧭 ナビゲーション
+<div align="center">
 
-| 前へ | 目次 | 次へ |
-|------|------|------|
-| [📖 1.1 Kiro解説](kiro-introduction.md) | [📖 目次](../../README.md) | [🧪 1.3 Playwright MCP](playwright-mcp-testing.md) |
+| [← 📖 Kiro解説](kiro-introduction.md) | [🏠 目次](../../README.md) | [🧪 Playwright MCP →](playwright-mcp-testing.md) |
+|:---:|:---:|:---:|
 
-### 📍 現在の位置
-**第1章: はじめてのKiro** > **1.2 テトリス作成チュートリアル** ← 現在ここ
+</div>
 
-### 🔗 関連リンク
+---
+
+### 🔗 関連リソース
 - [🎮 テトリス完成版](../../examples/tetris-backup/)
 - [🛠️ トラブルシューティング](../troubleshooting/common-issues.md)
 - [❓ FAQ](../troubleshooting/faq.md)

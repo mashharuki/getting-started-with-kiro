@@ -321,3 +321,19 @@ jobs:
 - v1.1.0: AWS デプロイテンプレート追加
 - v1.2.0: セキュリティスキャン強化
 - v1.3.0: パフォーマンス最適化
+
+---
+
+<div align="center">
+
+| [← テンプレート一覧](../README.md) | [🏠 目次](../../README.md) |
+|:---:|:---:|
+
+</div>
+
+---
+
+### 🔗 関連リソース
+- [📝 設計・レビュー・実装](../../docs/chapter2/design-review-implementation.md)
+- [🔀 Git PRワークフロー](../../docs/chapter2/git-pr-workflow.md)
+- [🛠️ トラブルシューティング](../../docs/troubleshooting/common-issues.md)

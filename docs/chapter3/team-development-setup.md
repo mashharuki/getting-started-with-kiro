@@ -412,16 +412,16 @@
 
 ---
 
-## 🧭 ナビゲーション
+<div align="center">
 
-| 前へ | 目次 | 次へ |
-|------|------|------|
-| [📤 2.13-2.15 Git・PR・E2E](../chapter2/git-pr-workflow.md) | [📖 目次](../../README.md) | [📁 3.3 Steering管理戦略](steering-management.md) |
+| [← 🔀 Git PR](../chapter2/git-pr-workflow.md) | [🏠 目次](../../README.md) | [📁 Steering管理戦略 →](steering-management.md) |
+|:---:|:---:|:---:|
 
-### 📍 現在の位置
-**第3章: チーム開発を始めよう** > **3.1-3.2 チーム開発セットアップ** ← 現在ここ
+</div>
 
-### 🔗 関連リンク
+---
+
+### 🔗 関連リソース
 - [📁 CI/CDテンプレート](../../templates/cicd/)
 - [🛠️ トラブルシューティング](../troubleshooting/common-issues.md)
 - [❓ FAQ](../troubleshooting/faq.md)

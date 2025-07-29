@@ -517,16 +517,16 @@ AWS Documentation MCPの設定により：
 
 ---
 
-## 🧭 ナビゲーション
+<div align="center">
 
-| 前へ | 目次 | 次へ |
-|------|------|------|
-| [💡 2.1 AI相談](ai-consultation.md) | [📖 目次](../../README.md) | [📋 2.3 Steering設計原則](steering-design-principles.md) |
+| [← 💡 AI相談](ai-consultation.md) | [🏠 目次](../../README.md) | [📋 Steering設計原則 →](steering-design-principles.md) |
+|:---:|:---:|:---:|
 
-### 📍 現在の位置
-**第2章: 本格的なアプリを作ろう** > **2.2 AWS MCP設定** ← 現在ここ
+</div>
 
-### 🔗 関連リンク
+---
+
+### 🔗 関連リソース
 - [⚙️ MCP設定テンプレート](../../templates/mcp/)
 - [🛠️ トラブルシューティング](../troubleshooting/common-issues.md)
 - [❓ FAQ](../troubleshooting/faq.md)

@@ -868,16 +868,16 @@ jobs:
 
 ---
 
-## 🧭 ナビゲーション
+<div align="center">
 
-| 前へ | 目次 | 次へ |
-|------|------|------|
-| [🏗️ 2.4 パターン言語解説](pattern-language.md) | [📖 目次](../../README.md) | [💻 2.9 実装・テスト](implementation-testing.md) |
+| [← 🏗️ パターン言語解説](pattern-language.md) | [🏠 目次](../../README.md) | [🔀 Git PR →](git-pr-workflow.md) |
+|:---:|:---:|:---:|
 
-### 📍 現在の位置
-**第2章: 本格的なアプリを作ろう** > **2.5-2.8 設計・レビュー・CI/CD** ← 現在ここ
+</div>
 
-### 🔗 関連リンク
+---
+
+### 🔗 関連リソース
 - [📁 CI/CDテンプレート](../../templates/cicd/)
 - [🛠️ トラブルシューティング](../troubleshooting/common-issues.md)
 - [❓ FAQ](../troubleshooting/faq.md)

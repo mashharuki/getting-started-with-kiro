@@ -257,3 +257,19 @@ ls -la docs/api-spec.yaml
 - v1.1.0: 技術別テンプレート追加
 - v1.2.0: 役割別テンプレート追加
 - v1.3.0: フェーズ別テンプレート追加
+
+---
+
+<div align="center">
+
+| [← テンプレート一覧](../README.md) | [🏠 目次](../../README.md) |
+|:---:|:---:|
+
+</div>
+
+---
+
+### 🔗 関連リソース
+- [📋 Steering設計原則](../../docs/chapter2/steering-design-principles.md)
+- [📁 Steering管理戦略](../../docs/chapter3/steering-management.md)
+- [🛠️ トラブルシューティング](../../docs/troubleshooting/common-issues.md)
