@@ -6,10 +6,10 @@
 
 このチュートリアルを完了すると、以下のことができるようになります：
 
-- **Kiroの基本概念とスペック駆動開発の理解** - AIコーディングのベストプラクティスを習得
-- **Kiroを使った実際のアプリケーション開発** - テトリスから本格的なWebアプリまで
-- **チーム開発でのKiro活用方法** - 協働開発とCI/CD統合
-- **高度な機能（MCP、Steering、Hooks）の実践的な使用** - 効率的な開発環境の構築
+- **Kiroの基本概念とスペック駆動開発の理解** - AIコーディングのベストプラクティスを習得できる
+- **Kiroを使った実際のアプリケーション開発** - テトリスから本格的なWebアプリまで開発を体験できる
+- **チーム開発でのKiro活用方法** - チームでのコラボレーション開発とCI/CDパイプラインを統合した非同期開発・テストやデプロイが自動化できる
+- **高度な機能（MCP、Steering、Hooks）の実践的な使用** - さらに便利で効率的な開発環境が構築できる
 
 ## 🎯 前提知識
 
@@ -38,7 +38,7 @@
 ### 学習サポート
 - **トラブルシューティング**: 問題が発生した場合は [よくある問題](docs/troubleshooting/common-issues.md) を確認
 - **FAQ**: 疑問点は [FAQ](docs/troubleshooting/faq.md) で解決
-- **サンプルコード**: [examples/](examples/) ディレクトリに完成版のコードを用意
+- **サンプルコード**: [examples/](examples/) ディレクトリに完成版のコードを用意してあります
 
 ### 学習進捗の確認
 各章の最後に「学習成果」が記載されています。これらの項目ができるようになったら次の章に進んでください。
@@ -59,12 +59,12 @@
 ## 📖 目次とナビゲーション
 
 ### 🌟 第1章: はじめてのKiro
-- [1.1 Kiro解説](docs/chapter1/kiro-introduction.md) - Kiroの基本概念とインストール
-- [1.2 テトリス作成チュートリアル](docs/chapter1/tetris-tutorial.md) - 実践的なアプリ開発体験
-- [1.3 Playwright MCPテスト](docs/chapter1/playwright-mcp-testing.md) - 自動テストの基礎
+- [1.1 Kiroの基礎解説](docs/chapter1/kiro-introduction.md) - Kiroの基本概念とインストール
+- [1.2 テトリスを作ってみよう](docs/chapter1/tetris-tutorial.md) - 実践的なアプリ開発体験
+- [1.3 Playwright MCPでテストしてみよう](docs/chapter1/playwright-mcp-testing.md) - 自動テストの基礎
 
 ### 🚀 第2章: 本格的なアプリを作ろう
-- [2.1 AI相談とプロジェクト企画](docs/chapter2/ai-consultation.md) - 効果的なAI活用法
+- [2.1 なにを作るかAIに相談してみよう](docs/chapter2/ai-consultation.md) - AI活用法
 - [2.2 AWS MCP設定](docs/chapter2/aws-mcp-setup.md) - 外部サービス連携
 - [2.3 Steering設計原則](docs/chapter2/steering-design-principles.md) - プロジェクト固有の設計指針
 - [2.4 パターン言語解説](docs/chapter2/pattern-language.md) - 再利用可能な設計パターン
