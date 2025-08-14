@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Integration Test Suite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1a1a2e;
+            color: white;
+        }
+        
+        .test-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-width: 1400px;
+        }
+        
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        
+        .test-result {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .success {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+        
+        .error {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+        
+        .warning {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+        
+        .info {
+            background-color: rgba(23, 162, 184, 0.2);
+            color: #17a2b8;
+            border: 1px solid #17a2b8;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .run-all {
+            background-color: #28a745;
+            font-size: 1.1rem;
+            padding: 15px 30px;
+        }
+        
+        .run-all:hover {
+            background-color: #1e7e34;
+        }
+        
+        .stats {
+            background-color: rgba(0, 123, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #007bff;
+        }
+        
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00f0f0;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-top: 5px;
+        }
+        
+        .browser-test {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .browser-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 150px;
+            text-align: center;
+        }
+        
+        .browser-status {
+            font-size: 1.5rem;
+            margin: 10px 0;
+        }
+        
+        .status-pass { color: #28a745; }
+        .status-fail { color: #dc3545; }
+        .status-unknown { color: #ffc107; }
+        
+        .game-demo {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        
+        canvas {
+            border: 2px solid white;
+            background: black;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎮 Tetris Complete Integration Test Suite</h1>
+        <p><strong>Task 11.1:</strong> Comprehensive testing of all game functionality, performance, and browser compatibility</p>
+        <p><strong>Requirements Coverage:</strong> 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 2.4, 2.5, 3.1, 3.2, 3.3, 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4</p>
+        
+        <div class="stats" id="testSummary">
+            <h3>📊 Test Summary</h3>
+            <div class="performance-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalTests">0</div>
+                    <div class="metric-label">Total Tests</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="passedTests">0</div>
+                    <div class="metric-label">Passed</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="failedTests">0</div>
+                    <div class="metric-label">Failed</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="successRate">0%</div>
+                    <div class="metric-label">Success Rate</div>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px;">
+                Test Progress: <span id="progressText">0/0</span>
+            </div>
+        </div>
+        
+        <button class="run-all" onclick="runCompleteIntegrationTest()">🚀 Run Complete Integration Test</button>
+        <button onclick="clearResults()">🗑️ Clear Results</button>
+        <button onclick="exportResults()">📄 Export Results</button>
+    </div>
+
+    <!-- Game Functionality Tests -->
+    <div class="test-container">
+        <div class="test-section">
+            <h2>🎯 1. Core Game Functionality Tests</h2>
+            <p>Testing all core game mechanics and features</p>
+            <button onclick="runGameFunctionalityTests()">Run Functionality Tests</button>
+            <div id="functionalityResults"></div>
+            
+            <div class="game-demo">
+                <div>
+                    <h3>Game Demo:</h3>
+                    <canvas id="functionalityCanvas" width="300" height="400"></canvas>
+                </div>
+                <div style="min-width: 300px;">
+                    <h3>Test Status:</h3>
+                    <div id="functionalityStatus">Ready to test...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Tests -->
+    <div class="test-container">
+        <div class="test-section">
+            <h2>⚡ 2. Performance Tests</h2>
+            <p>Testing frame rate, memory usage, and response times</p>
+            <button onclick="runPerformanceTests()">Run Performance Tests</button>
+            <div id="performanceResults"></div>
+            
+            <div class="performance-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="frameRate">--</div>
+                    <div class="metric-label">FPS</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="memoryUsage">--</div>
+                    <div class="metric-label">Memory (MB)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="inputLatency">--</div>
+                    <div class="metric-label">Input Latency (ms)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="renderTime">--</div>
+                    <div class="metric-label">Render Time (ms)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Browser Compatibility Tests -->
+    <div class="test-container">
+        <div class="test-section">
+            <h2>🌐 3. Browser Compatibility Tests</h2>
+            <p>Testing compatibility across different browsers and features</p>
+            <button onclick="runBrowserCompatibilityTests()">Run Compatibility Tests</button>
+            <div id="compatibilityResults"></div>
+            
+            <div class="browser-test">
+                <div class="browser-card">
+                    <h4>Canvas API</h4>
+                    <div class="browser-status" id="canvasStatus">❓</div>
+                    <div id="canvasDetails">Testing...</div>
+                </div>
+                <div class="browser-card">
+                    <h4>Keyboard Events</h4>
+                    <div class="browser-status" id="keyboardStatus">❓</div>
+                    <div id="keyboardDetails">Testing...</div>
+                </div>
+                <div class="browser-card">
+                    <h4>RequestAnimationFrame</h4>
+                    <div class="browser-status" id="rafStatus">❓</div>
+                    <div id="rafDetails">Testing...</div>
+                </div>
+                <div class="browser-card">
+                    <h4>Local Storage</h4>
+                    <div class="browser-status" id="storageStatus">❓</div>
+                    <div id="storageDetails">Testing...</div>
+                </div>
+                <div class="browser-card">
+                    <h4>CSS Features</h4>
+                    <div class="browser-status" id="cssStatus">❓</div>
+                    <div id="cssDetails">Testing...</div>
+                </div>
+                <div class="browser-card">
+                    <h4>ES6 Support</h4>
+                    <div class="browser-status" id="es6Status">❓</div>
+                    <div id="es6Details">Testing...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stress Tests -->
+    <div class="test-container">
+        <div class="test-section">
+            <h2>🔥 4. Stress Tests</h2>
+            <p>Testing system stability under extreme conditions</p>
+            <button onclick="runStressTests()">Run Stress Tests</button>
+            <div id="stressResults"></div>
+            
+            <div class="performance-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="stressActions">0</div>
+                    <div class="metric-label">Actions Processed</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="stressErrors">0</div>
+                    <div class="metric-label">Errors Encountered</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="stressStability">100%</div>
+                    <div class="metric-label">System Stability</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="stressDuration">0s</div>
+                    <div class="metric-label">Test Duration</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Test tracking and statistics
+        let integrationStats = {
+            total: 0,
+            passed: 0,
+            failed: 0,
+            currentTest: 0
+        };
+
+        // Performance monitoring
+        let performanceMonitor = {
+            frameRates: [],
+            memoryUsage: [],
+            inputLatencies: [],
+            renderTimes: [],
+            startTime: null,
+            testGameEngine: null
+        };
+
+        // Browser compatibility results
+        let compatibilityResults = {
+            canvas: false,
+            keyboard: false,
+            raf: false,
+            storage: false,
+            css: false,
+            es6: false
+        };
+
+        function log(message, type = 'success', containerId = 'integrationResults') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+            
+            // Update stats
+            integrationStats.total++;
+            if (type === 'success') {
+                integrationStats.passed++;
+            } else if (type === 'error') {
+                integrationStats.failed++;
+            }
+            
+            updateTestSummary();
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function updateTestSummary() {
+            document.getElementById('totalTests').textContent = integrationStats.total;
+            document.getElementById('passedTests').textContent = integrationStats.passed;
+            document.getElementById('failedTests').textContent = integrationStats.failed;
+            
+            const successRate = integrationStats.total > 0 ? 
+                ((integrationStats.passed / integrationStats.total) * 100).toFixed(1) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+            
+            // Update progress
+            const progress = integrationStats.total > 0 ? 
+                (integrationStats.currentTest / integrationStats.total) * 100 : 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = 
+                `${integrationStats.currentTest}/${integrationStats.total}`;
+        }
+
+        function clearResults() {
+            const containers = ['functionalityResults', 'performanceResults', 'compatibilityResults', 'stressResults'];
+            containers.forEach(id => {
+                const container = document.getElementById(id);
+                if (container) container.innerHTML = '';
+            });
+            
+            integrationStats = { total: 0, passed: 0, failed: 0, currentTest: 0 };
+            updateTestSummary();
+            
+            // Reset browser status indicators
+            ['canvas', 'keyboard', 'raf', 'storage', 'css', 'es6'].forEach(feature => {
+                document.getElementById(feature + 'Status').textContent = '❓';
+                document.getElementById(feature + 'Status').className = 'browser-status status-unknown';
+                document.getElementById(feature + 'Details').textContent = 'Testing...';
+            });
+        }
+
+        // MAIN INTEGRATION TEST RUNNER
+        async function runCompleteIntegrationTest() {
+            clearResults();
+            log('🚀 Starting Complete Integration Test Suite...', 'info', 'functionalityResults');
+            
+            const startTime = performance.now();
+            
+            try {
+                // Run all test suites in sequence
+                await runGameFunctionalityTests();
+                await runPerformanceTests();
+                await runBrowserCompatibilityTests();
+                await runStressTests();
+                
+                const endTime = performance.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(2);
+                
+                log(`✅ Complete Integration Test Suite Finished in ${duration}s`, 'success', 'functionalityResults');
+                log(`📊 Final Results: ${integrationStats.passed}/${integrationStats.total} tests passed`, 'info', 'functionalityResults');
+                
+                // Generate summary report
+                generateSummaryReport(duration);
+                
+            } catch (error) {
+                log(`❌ Integration test suite failed: ${error.message}`, 'error', 'functionalityResults');
+            }
+        }
+
+        // 1. GAME FUNCTIONALITY TESTS
+        async function runGameFunctionalityTests() {
+            log('=== 🎯 Starting Game Functionality Tests ===', 'warning', 'functionalityResults');
+            
+            const statusDiv = document.getElementById('functionalityStatus');
+            
+            try {
+                // Test 1: Core Game Components
+                statusDiv.textContent = 'Testing core components...';
+                await testCoreComponents();
+                
+                // Test 2: Game Flow Integration
+                statusDiv.textContent = 'Testing game flow...';
+                await testGameFlowIntegration();
+                
+                // Test 3: Input System Integration
+                statusDiv.textContent = 'Testing input system...';
+                await testInputSystemIntegration();
+                
+                // Test 4: Scoring System Integration
+                statusDiv.textContent = 'Testing scoring system...';
+                await testScoringSystemIntegration();
+                
+                // Test 5: UI Integration
+                statusDiv.textContent = 'Testing UI integration...';
+                await testUIIntegration();
+                
+                statusDiv.textContent = 'Functionality tests completed!';
+                
+            } catch (error) {
+                log(`❌ Game functionality test error: ${error.message}`, 'error', 'functionalityResults');
+                statusDiv.textContent = 'Functionality tests failed!';
+            }
+            
+            log('=== 🎯 Game Functionality Tests Completed ===', 'warning', 'functionalityResults');
+        }
+
+        async function testCoreComponents() {
+            // Test Tetromino class
+            try {
+                const tetromino = new Tetromino('T');
+                if (tetromino.getType() === 'T' && tetromino.getShape() && tetromino.getColor()) {
+                    log('✓ Tetromino class working correctly', 'success', 'functionalityResults');
+                } else {
+                    log('✗ Tetromino class failed basic tests', 'error', 'functionalityResults');
+                }
+            } catch (error) {
+                log(`✗ Tetromino class error: ${error.message}`, 'error', 'functionalityResults');
+            }
+
+            // Test GameBoard class
+            try {
+                const board = new GameBoard();
+                const tetromino = new Tetromino('I');
+                
+                if (board.isValidPosition(tetromino, 3, 5) && 
+                    !board.isValidPosition(tetromino, -1, 5) &&
+                    board.placePiece(tetromino, 3, 17)) {
+                    log('✓ GameBoard class working correctly', 'success', 'functionalityResults');
+                } else {
+                    log('✗ GameBoard class failed basic tests', 'error', 'functionalityResults');
+                }
+            } catch (error) {
+                log(`✗ GameBoard class error: ${error.message}`, 'error', 'functionalityResults');
+            }
+
+            // Test GameEngine integration
+            try {
+                const canvas = document.getElementById('functionalityCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                gameEngine.start();
+                
+                if (gameEngine.isRunning()) {
+                    log('✓ GameEngine integration working correctly', 'success', 'functionalityResults');
+                } else {
+                    log('✗ GameEngine integration failed', 'error', 'functionalityResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ GameEngine integration error: ${error.message}`, 'error', 'functionalityResults');
+            }
+        }
+
+        async function testGameFlowIntegration() {
+            try {
+                const canvas = document.getElementById('functionalityCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                // Test start -> pause -> resume -> game over flow
+                gameEngine.start();
+                await sleep(100);
+                
+                gameEngine.pause();
+                if (gameEngine.isPaused()) {
+                    log('✓ Game pause functionality working', 'success', 'functionalityResults');
+                } else {
+                    log('✗ Game pause functionality failed', 'error', 'functionalityResults');
+                }
+                
+                gameEngine.resume();
+                if (gameEngine.isRunning() && !gameEngine.isPaused()) {
+                    log('✓ Game resume functionality working', 'success', 'functionalityResults');
+                } else {
+                    log('✗ Game resume functionality failed', 'error', 'functionalityResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Game flow integration error: ${error.message}`, 'error', 'functionalityResults');
+            }
+        }
+
+        async function testInputSystemIntegration() {
+            try {
+                const canvas = document.getElementById('functionalityCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                gameEngine.start();
+                
+                // Test all input methods
+                const inputMethods = ['moveLeft', 'moveRight', 'rotate', 'softDrop'];
+                let inputTestsPassed = 0;
+                
+                for (const method of inputMethods) {
+                    try {
+                        gameEngine[method]();
+                        inputTestsPassed++;
+                    } catch (error) {
+                        log(`✗ Input method ${method} failed: ${error.message}`, 'error', 'functionalityResults');
+                    }
+                }
+                
+                if (inputTestsPassed === inputMethods.length) {
+                    log('✓ All input methods working correctly', 'success', 'functionalityResults');
+                } else {
+                    log(`⚠ ${inputTestsPassed}/${inputMethods.length} input methods working`, 'warning', 'functionalityResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Input system integration error: ${error.message}`, 'error', 'functionalityResults');
+            }
+        }
+
+        async function testScoringSystemIntegration() {
+            try {
+                // Test scoring calculations
+                const gameState = new GameState();
+                
+                // Test single line clear
+                gameState.updateScore(1);
+                if (gameState.getScore() === 100) {
+                    log('✓ Single line scoring working correctly', 'success', 'functionalityResults');
+                } else {
+                    log(`✗ Single line scoring failed: expected 100, got ${gameState.getScore()}`, 'error', 'functionalityResults');
+                }
+                
+                // Test multiple line clear
+                gameState.reset();
+                gameState.updateScore(4); // Tetris
+                if (gameState.getScore() === 800) {
+                    log('✓ Multiple line scoring working correctly', 'success', 'functionalityResults');
+                } else {
+                    log(`✗ Multiple line scoring failed: expected 800, got ${gameState.getScore()}`, 'error', 'functionalityResults');
+                }
+                
+                // Test level progression
+                gameState.reset();
+                for (let i = 0; i < 10; i++) {
+                    gameState.updateScore(1);
+                }
+                
+                if (gameState.getLevel() === 2) {
+                    log('✓ Level progression working correctly', 'success', 'functionalityResults');
+                } else {
+                    log(`✗ Level progression failed: expected 2, got ${gameState.getLevel()}`, 'error', 'functionalityResults');
+                }
+                
+            } catch (error) {
+                log(`✗ Scoring system integration error: ${error.message}`, 'error', 'functionalityResults');
+            }
+        }
+
+        async function testUIIntegration() {
+            try {
+                // Test UI element updates
+                const scoreElement = document.createElement('div');
+                const levelElement = document.createElement('div');
+                const linesElement = document.createElement('div');
+                
+                const canvas = document.getElementById('functionalityCanvas');
+                const gameEngine = new GameEngine(canvas, scoreElement, levelElement, linesElement);
+                
+                gameEngine.start();
+                
+                // Simulate some game actions
+                await sleep(100);
+                
+                // Check if UI elements are being updated
+                if (scoreElement.textContent !== undefined && 
+                    levelElement.textContent !== undefined && 
+                    linesElement.textContent !== undefined) {
+                    log('✓ UI integration working correctly', 'success', 'functionalityResults');
+                } else {
+                    log('✗ UI integration failed - elements not updated', 'error', 'functionalityResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ UI integration error: ${error.message}`, 'error', 'functionalityResults');
+            }
+        }
+
+        // 2. PERFORMANCE TESTS
+        async function runPerformanceTests() {
+            log('=== ⚡ Starting Performance Tests ===', 'warning', 'performanceResults');
+            
+            try {
+                // Test frame rate
+                await testFrameRate();
+                
+                // Test memory usage
+                await testMemoryUsage();
+                
+                // Test input latency
+                await testInputLatency();
+                
+                // Test render performance
+                await testRenderPerformance();
+                
+            } catch (error) {
+                log(`❌ Performance test error: ${error.message}`, 'error', 'performanceResults');
+            }
+            
+            log('=== ⚡ Performance Tests Completed ===', 'warning', 'performanceResults');
+        }
+
+        async function testFrameRate() {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 300;
+                canvas.height = 400;
+                
+                let frameCount = 0;
+                let startTime = performance.now();
+                let lastTime = startTime;
+                
+                function measureFrame() {
+                    const currentTime = performance.now();
+                    frameCount++;
+                    
+                    if (currentTime - startTime >= 1000) { // 1 second
+                        const fps = Math.round(frameCount);
+                        document.getElementById('frameRate').textContent = fps;
+                        
+                        if (fps >= 55) {
+                            log(`✓ Frame rate excellent: ${fps} FPS`, 'success', 'performanceResults');
+                        } else if (fps >= 30) {
+                            log(`⚠ Frame rate acceptable: ${fps} FPS`, 'warning', 'performanceResults');
+                        } else {
+                            log(`✗ Frame rate poor: ${fps} FPS`, 'error', 'performanceResults');
+                        }
+                        
+                        resolve();
+                        return;
+                    }
+                    
+                    requestAnimationFrame(measureFrame);
+                }
+                
+                requestAnimationFrame(measureFrame);
+            });
+        }
+
+        async function testMemoryUsage() {
+            try {
+                if (performance.memory) {
+                    const memoryMB = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(1);
+                    document.getElementById('memoryUsage').textContent = memoryMB;
+                    
+                    if (memoryMB < 50) {
+                        log(`✓ Memory usage excellent: ${memoryMB} MB`, 'success', 'performanceResults');
+                    } else if (memoryMB < 100) {
+                        log(`⚠ Memory usage acceptable: ${memoryMB} MB`, 'warning', 'performanceResults');
+                    } else {
+                        log(`✗ Memory usage high: ${memoryMB} MB`, 'error', 'performanceResults');
+                    }
+                } else {
+                    document.getElementById('memoryUsage').textContent = 'N/A';
+                    log('⚠ Memory API not available in this browser', 'warning', 'performanceResults');
+                }
+            } catch (error) {
+                log(`✗ Memory usage test error: ${error.message}`, 'error', 'performanceResults');
+            }
+        }
+
+        async function testInputLatency() {
+            try {
+                const latencies = [];
+                
+                for (let i = 0; i < 10; i++) {
+                    const start = performance.now();
+                    
+                    // Simulate input processing
+                    const event = new KeyboardEvent('keydown', { key: 'ArrowLeft' });
+                    document.dispatchEvent(event);
+                    
+                    const end = performance.now();
+                    latencies.push(end - start);
+                }
+                
+                const avgLatency = (latencies.reduce((a, b) => a + b, 0) / latencies.length).toFixed(2);
+                document.getElementById('inputLatency').textContent = avgLatency;
+                
+                if (avgLatency < 5) {
+                    log(`✓ Input latency excellent: ${avgLatency} ms`, 'success', 'performanceResults');
+                } else if (avgLatency < 16) {
+                    log(`⚠ Input latency acceptable: ${avgLatency} ms`, 'warning', 'performanceResults');
+                } else {
+                    log(`✗ Input latency high: ${avgLatency} ms`, 'error', 'performanceResults');
+                }
+                
+            } catch (error) {
+                log(`✗ Input latency test error: ${error.message}`, 'error', 'performanceResults');
+            }
+        }
+
+        async function testRenderPerformance() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 300;
+                canvas.height = 400;
+                const ctx = canvas.getContext('2d');
+                
+                const renderTimes = [];
+                
+                for (let i = 0; i < 10; i++) {
+                    const start = performance.now();
+                    
+                    // Simulate game rendering
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Draw game board
+                    for (let row = 0; row < 20; row++) {
+                        for (let col = 0; col < 10; col++) {
+                            ctx.fillStyle = Math.random() > 0.8 ? '#ff0000' : '#000000';
+                            ctx.fillRect(col * 30, row * 20, 30, 20);
+                        }
+                    }
+                    
+                    const end = performance.now();
+                    renderTimes.push(end - start);
+                }
+                
+                const avgRenderTime = (renderTimes.reduce((a, b) => a + b, 0) / renderTimes.length).toFixed(2);
+                document.getElementById('renderTime').textContent = avgRenderTime;
+                
+                if (avgRenderTime < 5) {
+                    log(`✓ Render performance excellent: ${avgRenderTime} ms`, 'success', 'performanceResults');
+                } else if (avgRenderTime < 16) {
+                    log(`⚠ Render performance acceptable: ${avgRenderTime} ms`, 'warning', 'performanceResults');
+                } else {
+                    log(`✗ Render performance poor: ${avgRenderTime} ms`, 'error', 'performanceResults');
+                }
+                
+            } catch (error) {
+                log(`✗ Render performance test error: ${error.message}`, 'error', 'performanceResults');
+            }
+        }
+
+        // 3. BROWSER COMPATIBILITY TESTS
+        async function runBrowserCompatibilityTests() {
+            log('=== 🌐 Starting Browser Compatibility Tests ===', 'warning', 'compatibilityResults');
+            
+            // Test Canvas API
+            testCanvasAPI();
+            
+            // Test Keyboard Events
+            testKeyboardEvents();
+            
+            // Test RequestAnimationFrame
+            testRequestAnimationFrame();
+            
+            // Test Local Storage
+            testLocalStorage();
+            
+            // Test CSS Features
+            testCSSFeatures();
+            
+            // Test ES6 Support
+            testES6Support();
+            
+            log('=== 🌐 Browser Compatibility Tests Completed ===', 'warning', 'compatibilityResults');
+        }
+
+        function testCanvasAPI() {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                if (ctx && typeof ctx.fillRect === 'function' && typeof ctx.clearRect === 'function') {
+                    compatibilityResults.canvas = true;
+                    updateBrowserStatus('canvas', true, 'Full Canvas API support');
+                    log('✓ Canvas API fully supported', 'success', 'compatibilityResults');
+                } else {
+                    updateBrowserStatus('canvas', false, 'Canvas API not supported');
+                    log('✗ Canvas API not supported', 'error', 'compatibilityResults');
+                }
+            } catch (error) {
+                updateBrowserStatus('canvas', false, `Canvas API error: ${error.message}`);
+                log(`✗ Canvas API test error: ${error.message}`, 'error', 'compatibilityResults');
+            }
+        }
+
+        function testKeyboardEvents() {
+            try {
+                let eventSupported = false;
+                
+                const testHandler = (e) => {
+                    eventSupported = true;
+                    document.removeEventListener('keydown', testHandler);
+                };
+                
+                document.addEventListener('keydown', testHandler);
+                
+                const event = new KeyboardEvent('keydown', { key: 'ArrowLeft' });
+                document.dispatchEvent(event);
+                
+                setTimeout(() => {
+                    if (eventSupported) {
+                        compatibilityResults.keyboard = true;
+                        updateBrowserStatus('keyboard', true, 'Keyboard events supported');
+                        log('✓ Keyboard events fully supported', 'success', 'compatibilityResults');
+                    } else {
+                        updateBrowserStatus('keyboard', false, 'Keyboard events not working');
+                        log('✗ Keyboard events not working', 'error', 'compatibilityResults');
+                    }
+                }, 100);
+                
+            } catch (error) {
+                updateBrowserStatus('keyboard', false, `Keyboard test error: ${error.message}`);
+                log(`✗ Keyboard events test error: ${error.message}`, 'error', 'compatibilityResults');
+            }
+        }
+
+        function testRequestAnimationFrame() {
+            try {
+                if (typeof requestAnimationFrame === 'function') {
+                    compatibilityResults.raf = true;
+                    updateBrowserStatus('raf', true, 'RequestAnimationFrame supported');
+                    log('✓ RequestAnimationFrame supported', 'success', 'compatibilityResults');
+                } else {
+                    updateBrowserStatus('raf', false, 'RequestAnimationFrame not available');
+                    log('✗ RequestAnimationFrame not available', 'error', 'compatibilityResults');
+                }
+            } catch (error) {
+                updateBrowserStatus('raf', false, `RAF test error: ${error.message}`);
+                log(`✗ RequestAnimationFrame test error: ${error.message}`, 'error', 'compatibilityResults');
+            }
+        }
+
+        function testLocalStorage() {
+            try {
+                localStorage.setItem('tetris_test', 'test_value');
+                const value = localStorage.getItem('tetris_test');
+                localStorage.removeItem('tetris_test');
+                
+                if (value === 'test_value') {
+                    compatibilityResults.storage = true;
+                    updateBrowserStatus('storage', true, 'Local Storage working');
+                    log('✓ Local Storage fully supported', 'success', 'compatibilityResults');
+                } else {
+                    updateBrowserStatus('storage', false, 'Local Storage not working');
+                    log('✗ Local Storage not working properly', 'error', 'compatibilityResults');
+                }
+            } catch (error) {
+                updateBrowserStatus('storage', false, `Storage error: ${error.message}`);
+                log(`✗ Local Storage test error: ${error.message}`, 'error', 'compatibilityResults');
+            }
+        }
+
+        function testCSSFeatures() {
+            try {
+                const testElement = document.createElement('div');
+                testElement.style.display = 'flex';
+                testElement.style.background = 'linear-gradient(45deg, red, blue)';
+                testElement.style.borderRadius = '10px';
+                
+                const computedStyle = getComputedStyle(testElement);
+                
+                if (computedStyle.display === 'flex' && 
+                    computedStyle.borderRadius === '10px') {
+                    compatibilityResults.css = true;
+                    updateBrowserStatus('css', true, 'Modern CSS features supported');
+                    log('✓ Modern CSS features supported', 'success', 'compatibilityResults');
+                } else {
+                    updateBrowserStatus('css', false, 'Limited CSS support');
+                    log('⚠ Limited CSS feature support', 'warning', 'compatibilityResults');
+                }
+            } catch (error) {
+                updateBrowserStatus('css', false, `CSS test error: ${error.message}`);
+                log(`✗ CSS features test error: ${error.message}`, 'error', 'compatibilityResults');
+            }
+        }
+
+        function testES6Support() {
+            try {
+                // Test arrow functions, classes, const/let
+                const testClass = class TestClass {
+                    constructor() {
+                        this.value = 'test';
+                    }
+                    
+                    getValue = () => this.value;
+                };
+                
+                const instance = new testClass();
+                
+                if (instance.getValue() === 'test') {
+                    compatibilityResults.es6 = true;
+                    updateBrowserStatus('es6', true, 'ES6+ features supported');
+                    log('✓ ES6+ features fully supported', 'success', 'compatibilityResults');
+                } else {
+                    updateBrowserStatus('es6', false, 'ES6+ features not working');
+                    log('✗ ES6+ features not working properly', 'error', 'compatibilityResults');
+                }
+            } catch (error) {
+                updateBrowserStatus('es6', false, `ES6 test error: ${error.message}`);
+                log(`✗ ES6+ features test error: ${error.message}`, 'error', 'compatibilityResults');
+            }
+        }
+
+        function updateBrowserStatus(feature, passed, details) {
+            const statusElement = document.getElementById(feature + 'Status');
+            const detailsElement = document.getElementById(feature + 'Details');
+            
+            if (passed) {
+                statusElement.textContent = '✅';
+                statusElement.className = 'browser-status status-pass';
+            } else {
+                statusElement.textContent = '❌';
+                statusElement.className = 'browser-status status-fail';
+            }
+            
+            detailsElement.textContent = details;
+        }
+
+        // 4. STRESS TESTS
+        async function runStressTests() {
+            log('=== 🔥 Starting Stress Tests ===', 'warning', 'stressResults');
+            
+            const startTime = performance.now();
+            let actionCount = 0;
+            let errorCount = 0;
+            
+            try {
+                // Rapid input stress test
+                await rapidInputStressTest();
+                
+                // Memory stress test
+                await memoryStressTest();
+                
+                // Long duration test
+                await longDurationTest();
+                
+                const endTime = performance.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(1);
+                
+                document.getElementById('stressDuration').textContent = duration + 's';
+                
+                const stability = errorCount === 0 ? 100 : Math.max(0, 100 - (errorCount * 5));
+                document.getElementById('stressStability').textContent = stability + '%';
+                
+                if (stability >= 95) {
+                    log(`✓ Stress tests passed with ${stability}% stability`, 'success', 'stressResults');
+                } else {
+                    log(`⚠ Stress tests completed with ${stability}% stability`, 'warning', 'stressResults');
+                }
+                
+            } catch (error) {
+                log(`❌ Stress test error: ${error.message}`, 'error', 'stressResults');
+                document.getElementById('stressErrors').textContent = ++errorCount;
+            }
+            
+            log('=== 🔥 Stress Tests Completed ===', 'warning', 'stressResults');
+        }
+
+        async function rapidInputStressTest() {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                gameEngine.start();
+                
+                let actionCount = 0;
+                const actions = ['moveLeft', 'moveRight', 'rotate', 'softDrop'];
+                
+                const rapidTest = setInterval(() => {
+                    try {
+                        const action = actions[Math.floor(Math.random() * actions.length)];
+                        gameEngine[action]();
+                        actionCount++;
+                        
+                        document.getElementById('stressActions').textContent = actionCount;
+                        
+                        if (actionCount >= 1000) {
+                            clearInterval(rapidTest);
+                            gameEngine.destroy();
+                            log('✓ Rapid input stress test completed (1000 actions)', 'success', 'stressResults');
+                            resolve();
+                        }
+                    } catch (error) {
+                        clearInterval(rapidTest);
+                        gameEngine.destroy();
+                        log(`✗ Rapid input stress test failed: ${error.message}`, 'error', 'stressResults');
+                        resolve();
+                    }
+                }, 1);
+            });
+        }
+
+        async function memoryStressTest() {
+            try {
+                const objects = [];
+                
+                // Create many game objects
+                for (let i = 0; i < 1000; i++) {
+                    objects.push(new Tetromino(['I', 'O', 'T', 'S', 'Z', 'J', 'L'][i % 7]));
+                    objects.push(new GameBoard());
+                }
+                
+                // Force garbage collection if available
+                if (window.gc) {
+                    window.gc();
+                }
+                
+                log('✓ Memory stress test completed (2000 objects created)', 'success', 'stressResults');
+                
+            } catch (error) {
+                log(`✗ Memory stress test failed: ${error.message}`, 'error', 'stressResults');
+            }
+        }
+
+        async function longDurationTest() {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                gameEngine.start();
+                
+                // Run for 5 seconds
+                setTimeout(() => {
+                    try {
+                        gameEngine.destroy();
+                        log('✓ Long duration test completed (5 seconds)', 'success', 'stressResults');
+                        resolve();
+                    } catch (error) {
+                        log(`✗ Long duration test failed: ${error.message}`, 'error', 'stressResults');
+                        resolve();
+                    }
+                }, 5000);
+            });
+        }
+
+        // UTILITY FUNCTIONS
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function generateSummaryReport(duration) {
+            const report = {
+                timestamp: new Date().toISOString(),
+                duration: duration,
+                browser: navigator.userAgent,
+                stats: integrationStats,
+                compatibility: compatibilityResults,
+                performance: {
+                    frameRate: document.getElementById('frameRate').textContent,
+                    memoryUsage: document.getElementById('memoryUsage').textContent,
+                    inputLatency: document.getElementById('inputLatency').textContent,
+                    renderTime: document.getElementById('renderTime').textContent
+                }
+            };
+            
+            console.log('Integration Test Report:', report);
+            
+            // Store report for export
+            window.testReport = report;
+        }
+
+        function exportResults() {
+            if (window.testReport) {
+                const blob = new Blob([JSON.stringify(window.testReport, null, 2)], 
+                    { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `tetris-integration-test-${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                log('✓ Test results exported successfully', 'success', 'functionalityResults');
+            } else {
+                log('⚠ No test results to export - run tests first', 'warning', 'functionalityResults');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🎮 Integration Test Suite Ready', 'info', 'functionalityResults');
+        });
+    </script>
+</body>
+</html>

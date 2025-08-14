@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Renderer Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        canvas {
+            border: 2px solid white;
+            margin: 10px;
+            background: black;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .ui-display {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px;
+            display: inline-block;
+        }
+        
+        .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tetris Renderer Test</h1>
+    
+    <div class="test-section">
+        <h2>Main Game Canvas</h2>
+        <canvas id="gameCanvas" width="300" height="600"></canvas>
+        
+        <div>
+            <button onclick="testEmptyBoard()">Empty Board</button>
+            <button onclick="testWithBlocks()">Board with Blocks</button>
+            <button onclick="testCurrentPiece()">Current Piece</button>
+            <button onclick="testGhostPiece()">Ghost Piece</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Next Piece Canvas</h2>
+        <canvas id="nextPieceCanvas" width="80" height="80"></canvas>
+        
+        <div>
+            <button onclick="testNextPiece('I')">I Piece</button>
+            <button onclick="testNextPiece('T')">T Piece</button>
+            <button onclick="testNextPiece('O')">O Piece</button>
+            <button onclick="testNextPiece('L')">L Piece</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>UI Elements</h2>
+        <div class="ui-display">
+            <h3>Score</h3>
+            <div id="scoreValue" class="value">0</div>
+        </div>
+        
+        <div class="ui-display">
+            <h3>Level</h3>
+            <div id="levelValue" class="value">1</div>
+        </div>
+        
+        <div class="ui-display">
+            <h3>Lines</h3>
+            <div id="linesValue" class="value">0</div>
+        </div>
+        
+        <div>
+            <button onclick="testScoreUpdate()">Update Score</button>
+            <button onclick="testLevelUpdate()">Update Level</button>
+            <button onclick="testLinesUpdate()">Update Lines</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Test variables
+        let renderer;
+        let gameBoard;
+        let testScore = 0;
+        let testLevel = 1;
+        let testLines = 0;
+
+        // Initialize test
+        function initTest() {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const nextCanvas = document.getElementById('nextPieceCanvas');
+            
+            renderer = new Renderer(canvas, ctx, nextCanvas);
+            gameBoard = new GameBoard();
+            
+            console.log('Renderer initialized:', renderer.isReady());
+            testEmptyBoard();
+        }
+
+        function testEmptyBoard() {
+            renderer.clear();
+            renderer.drawBoard();
+            console.log('Empty board drawn');
+        }
+
+        function testWithBlocks() {
+            // Create a test board with some blocks
+            const testBoard = Array(20).fill().map(() => Array(10).fill(0));
+            
+            // Add some test blocks
+            testBoard[19][0] = 1; // I piece color
+            testBoard[19][1] = 2; // O piece color
+            testBoard[19][2] = 3; // T piece color
+            testBoard[19][3] = 4; // S piece color
+            testBoard[19][4] = 5; // Z piece color
+            testBoard[19][5] = 6; // J piece color
+            testBoard[19][6] = 7; // L piece color
+            
+            // Add a partial line
+            for (let i = 0; i < 8; i++) {
+                testBoard[18][i] = (i % 7) + 1;
+            }
+            
+            renderer.clear();
+            renderer.drawBoard(testBoard);
+            console.log('Board with blocks drawn');
+        }
+
+        function testCurrentPiece() {
+            testWithBlocks();
+            
+            // Create and draw a T piece
+            const tPiece = new Tetromino('T');
+            renderer.drawCurrentPiece(tPiece, 3, 5);
+            console.log('Current piece drawn');
+        }
+
+        function testGhostPiece() {
+            testCurrentPiece();
+            
+            // Draw ghost piece below current piece
+            const tPiece = new Tetromino('T');
+            renderer.drawGhostPiece(tPiece, 3, 15);
+            console.log('Ghost piece drawn');
+        }
+
+        function testNextPiece(type) {
+            const piece = new Tetromino(type);
+            renderer.drawNextPiece(piece);
+            console.log(`Next piece (${type}) drawn`);
+        }
+
+        function testScoreUpdate() {
+            testScore += 100;
+            renderer.updateScoreDisplay(testScore);
+            console.log(`Score updated to: ${testScore}`);
+        }
+
+        function testLevelUpdate() {
+            testLevel++;
+            renderer.updateLevelDisplay(testLevel);
+            console.log(`Level updated to: ${testLevel}`);
+        }
+
+        function testLinesUpdate() {
+            testLines++;
+            renderer.updateLinesDisplay(testLines);
+            console.log(`Lines updated to: ${testLines}`);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', initTest);
+    </script>
+</body>
+</html>

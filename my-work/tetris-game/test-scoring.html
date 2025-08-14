@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Scoring System Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .stats {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Tetris Scoring System Test</h1>
+        
+        <div class="test-section">
+            <h2>GameState Tests</h2>
+            <button onclick="runBasicTests()">Run Basic Tests</button>
+            <button onclick="runScoringTests()">Run Scoring Tests</button>
+            <button onclick="runLevelTests()">Run Level Tests</button>
+            <button onclick="runAllTests()">Run All Tests</button>
+            <div id="testResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Interactive Scoring Demo</h2>
+            <div class="stats" id="gameStats">
+                <strong>Current State:</strong><br>
+                Score: <span id="currentScore">0</span><br>
+                Level: <span id="currentLevel">1</span><br>
+                Lines: <span id="currentLines">0</span><br>
+                Lines until next level: <span id="linesUntilNext">10</span>
+            </div>
+            
+            <button onclick="clearLines(1)">Clear 1 Line (Single)</button>
+            <button onclick="clearLines(2)">Clear 2 Lines (Double)</button>
+            <button onclick="clearLines(3)">Clear 3 Lines (Triple)</button>
+            <button onclick="clearLines(4)">Clear 4 Lines (Tetris)</button>
+            <button onclick="softDrop(5)">Soft Drop 5 cells</button>
+            <button onclick="resetDemo()">Reset</button>
+        </div>
+
+        <div class="test-section">
+            <h2>Scoring Preview</h2>
+            <div id="scoringPreview"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Test GameState instance
+        let testGameState = new GameState();
+        
+        function log(message, isError = false) {
+            const resultsDiv = document.getElementById('testResults');
+            const div = document.createElement('div');
+            div.className = `test-result ${isError ? 'error' : 'success'}`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+        }
+
+        function runBasicTests() {
+            document.getElementById('testResults').innerHTML = '';
+            log('Starting Basic Tests...');
+            
+            try {
+                // Test GameState creation
+                const gameState = new GameState();
+                log('✓ GameState created successfully');
+                
+                // Test initial values
+                if (gameState.getScore() === 0) log('✓ Initial score is 0');
+                else log('✗ Initial score is not 0', true);
+                
+                if (gameState.getLevel() === 1) log('✓ Initial level is 1');
+                else log('✗ Initial level is not 1', true);
+                
+                if (gameState.getLines() === 0) log('✓ Initial lines is 0');
+                else log('✗ Initial lines is not 0', true);
+                
+                // Test state validation
+                if (gameState.validateState()) log('✓ State validation passes');
+                else log('✗ State validation fails', true);
+                
+                log('Basic tests completed!');
+                
+            } catch (error) {
+                log(`✗ Basic test error: ${error.message}`, true);
+            }
+        }
+
+        function runScoringTests() {
+            document.getElementById('testResults').innerHTML = '';
+            log('Starting Scoring Tests...');
+            
+            try {
+                const gameState = new GameState();
+                
+                // Test single line scoring
+                const singlePoints = gameState.updateScore(1);
+                if (singlePoints === 100) log('✓ Single line scores 100 points');
+                else log(`✗ Single line scored ${singlePoints}, expected 100`, true);
+                
+                // Reset for next test
+                gameState.reset();
+                
+                // Test double line scoring
+                const doublePoints = gameState.updateScore(2);
+                if (doublePoints === 300) log('✓ Double line scores 300 points');
+                else log(`✗ Double line scored ${doublePoints}, expected 300`, true);
+                
+                // Reset for next test
+                gameState.reset();
+                
+                // Test triple line scoring
+                const triplePoints = gameState.updateScore(3);
+                if (triplePoints === 500) log('✓ Triple line scores 500 points');
+                else log(`✗ Triple line scored ${triplePoints}, expected 500`, true);
+                
+                // Reset for next test
+                gameState.reset();
+                
+                // Test tetris scoring
+                const tetrisPoints = gameState.updateScore(4);
+                if (tetrisPoints === 800) log('✓ Tetris scores 800 points');
+                else log(`✗ Tetris scored ${tetrisPoints}, expected 800`, true);
+                
+                // Test level multiplier
+                gameState.reset();
+                gameState.addLines(10); // Level up to 2
+                const level2Points = gameState.updateScore(1);
+                if (level2Points === 200) log('✓ Level 2 single line scores 200 points');
+                else log(`✗ Level 2 single line scored ${level2Points}, expected 200`, true);
+                
+                log('Scoring tests completed!');
+                
+            } catch (error) {
+                log(`✗ Scoring test error: ${error.message}`, true);
+            }
+        }
+
+        function runLevelTests() {
+            document.getElementById('testResults').innerHTML = '';
+            log('Starting Level Tests...');
+            
+            try {
+                const gameState = new GameState();
+                
+                // Test level progression
+                gameState.addLines(9);
+                if (gameState.getLevel() === 1) log('✓ Level stays 1 with 9 lines');
+                else log(`✗ Level is ${gameState.getLevel()}, expected 1`, true);
+                
+                gameState.addLines(1); // Total 10 lines
+                if (gameState.getLevel() === 2) log('✓ Level increases to 2 at 10 lines');
+                else log(`✗ Level is ${gameState.getLevel()}, expected 2`, true);
+                
+                gameState.addLines(10); // Total 20 lines
+                if (gameState.getLevel() === 3) log('✓ Level increases to 3 at 20 lines');
+                else log(`✗ Level is ${gameState.getLevel()}, expected 3`, true);
+                
+                // Test lines until next level
+                const linesUntilNext = gameState.getLinesUntilNextLevel();
+                if (linesUntilNext === 10) log('✓ Lines until next level calculated correctly');
+                else log(`✗ Lines until next level is ${linesUntilNext}, expected 10`, true);
+                
+                // Test drop speed changes
+                const dropSpeed = gameState.getDropSpeed();
+                if (dropSpeed < CONFIG.INITIAL_DROP_SPEED) log('✓ Drop speed decreases with level');
+                else log('✗ Drop speed did not decrease with level', true);
+                
+                log('Level tests completed!');
+                
+            } catch (error) {
+                log(`✗ Level test error: ${error.message}`, true);
+            }
+        }
+
+        function runAllTests() {
+            runBasicTests();
+            setTimeout(() => runScoringTests(), 100);
+            setTimeout(() => runLevelTests(), 200);
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentScore').textContent = testGameState.getScore();
+            document.getElementById('currentLevel').textContent = testGameState.getLevel();
+            document.getElementById('currentLines').textContent = testGameState.getLines();
+            document.getElementById('linesUntilNext').textContent = testGameState.getLinesUntilNextLevel();
+            
+            // Update scoring preview
+            const stats = testGameState.getScoringStats();
+            const previewDiv = document.getElementById('scoringPreview');
+            previewDiv.innerHTML = `
+                <strong>Scoring Preview (Current Level ${stats.level}):</strong><br>
+                Single (1 line): ${stats.scorePreview.single} points<br>
+                Double (2 lines): ${stats.scorePreview.double} points<br>
+                Triple (3 lines): ${stats.scorePreview.triple} points<br>
+                Tetris (4 lines): ${stats.scorePreview.tetris} points<br>
+                <br>
+                Drop Speed: ${stats.dropSpeed}ms<br>
+                Level Progress: ${stats.levelProgress.toFixed(1)}%
+            `;
+        }
+
+        function clearLines(count) {
+            const result = testGameState.processLineClear(count);
+            log(`${result.lineClearType}! +${result.pointsAwarded} points${result.levelIncreased ? ` (Level up to ${result.newLevel}!)` : ''}`);
+            updateDisplay();
+        }
+
+        function softDrop(cells) {
+            const points = testGameState.awardSoftDropPoints(cells);
+            log(`Soft drop: +${points} points for ${cells} cells`);
+            updateDisplay();
+        }
+
+        function resetDemo() {
+            testGameState.reset();
+            updateDisplay();
+            log('Demo reset');
+        }
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>

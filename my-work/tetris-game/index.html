@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="Classic Tetris game built with HTML5, CSS3, and JavaScript">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tetris">
+    <title>Tetris Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tetris</h1>
+        </header>
+        
+        <main class="game-container">
+            <div class="game-board-container">
+                <canvas id="gameCanvas" width="300" height="600"></canvas>
+                <div id="gameOverScreen" class="game-over hidden">
+                    <h2>Game Over</h2>
+                    <button id="restartButton">再スタート</button>
+                </div>
+                <div id="pauseScreen" class="pause-screen hidden">
+                    <h2>Paused</h2>
+                </div>
+                <div id="error-message" class="error-message hidden"></div>
+            </div>
+            
+            <aside class="game-info">
+                <div class="info-panel">
+                    <div class="score-section">
+                        <h3>スコア</h3>
+                        <div id="scoreValue" class="value">0</div>
+                    </div>
+                    
+                    <div class="level-section">
+                        <h3>レベル</h3>
+                        <div id="levelValue" class="value">1</div>
+                    </div>
+                    
+                    <div class="lines-section">
+                        <h3>ライン</h3>
+                        <div id="linesValue" class="value">0</div>
+                    </div>
+                    
+                    <div class="next-piece-section">
+                        <h3>次のブロック</h3>
+                        <canvas id="nextPieceCanvas" width="80" height="80"></canvas>
+                    </div>
+                </div>
+                
+                <div class="controls-panel">
+                    <button id="startButton" class="control-button primary">スタート</button>
+                    <button id="pauseButton" class="control-button secondary">ポーズ</button>
+                </div>
+            </aside>
+        </main>
+        
+        <footer class="controls-info">
+            <div class="controls-text">
+                <p><strong>操作方法:</strong></p>
+                <p>← → : 左右移動</p>
+                <p>↓ : 高速落下</p>
+                <p>↑ : 回転</p>
+                <p>スペース : ポーズ/再開</p>
+            </div>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

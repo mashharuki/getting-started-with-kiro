@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Usability Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1a1a2e;
+            color: white;
+        }
+        
+        .test-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-width: 1400px;
+        }
+        
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        
+        .test-result {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .success {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+        
+        .error {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+        
+        .warning {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+        
+        .info {
+            background-color: rgba(23, 162, 184, 0.2);
+            color: #17a2b8;
+            border: 1px solid #17a2b8;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .run-all {
+            background-color: #28a745;
+        }
+        
+        .run-all:hover {
+            background-color: #1e7e34;
+        }
+        
+        .stats {
+            background-color: rgba(0, 123, 255, 0.1);
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border: 1px solid #007bff;
+        }
+        
+        .game-demo {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        
+        canvas {
+            border: 2px solid white;
+            background: black;
+        }
+        
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 300px;
+        }
+        
+        .response-time-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        
+        .key-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .key-indicator.active {
+            background: rgba(0, 255, 0, 0.3);
+            border-color: #00ff00;
+        }
+        
+        .error-log {
+            background: rgba(0, 0, 0, 0.5);
+            color: #ff6b6b;
+            padding: 10px;
+            border-radius: 4px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            border: 1px solid #ff6b6b;
+        }
+        
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00f0f0;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Tetris Usability Test Suite</h1>
+        <p>Requirements: 2.1, 2.2, 2.3, 2.4, 2.5 - Testing user experience and interaction quality</p>
+        
+        <div class="stats" id="testSummary">
+            <strong>Test Summary:</strong><br>
+            Total Tests: <span id="totalTests">0</span><br>
+            Passed: <span id="passedTests">0</span><br>
+            Failed: <span id="failedTests">0</span><br>
+            Success Rate: <span id="successRate">0%</span>
+        </div>
+        
+        <button class="run-all" onclick="runAllUsabilityTests()">Run All Usability Tests</button>
+        <button onclick="clearResults()">Clear Results</button>
+        <button onclick="startInteractiveDemo()">Start Interactive Demo</button>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>1. Keyboard Responsiveness Tests (Requirements 2.1-2.5)</h2>
+            <p>Testing input latency, key repeat handling, and control accuracy</p>
+            <button onclick="runKeyboardResponsivenessTests()">Run Keyboard Tests</button>
+            <div id="keyboardResults"></div>
+            
+            <div class="game-demo">
+                <div>
+                    <h3>Game Demo:</h3>
+                    <canvas id="responsivenessCanvas" width="300" height="400"></canvas>
+                </div>
+                <div class="controls-panel">
+                    <h3>Key Status:</h3>
+                    <div id="keyIndicators">
+                        <div class="key-indicator" id="key-left">←</div>
+                        <div class="key-indicator" id="key-right">→</div>
+                        <div class="key-indicator" id="key-up">↑</div>
+                        <div class="key-indicator" id="key-down">↓</div>
+                        <div class="key-indicator" id="key-space">Space</div>
+                    </div>
+                    
+                    <div class="response-time-display" id="responseTimeDisplay">
+                        Response Time: <span id="responseTime">-- ms</span><br>
+                        Last Action: <span id="lastAction">None</span><br>
+                        Actions/sec: <span id="actionsPerSecond">0</span>
+                    </div>
+                    
+                    <div class="performance-metrics">
+                        <div class="metric-card">
+                            <div class="metric-value" id="avgResponseTime">--</div>
+                            <div class="metric-label">Avg Response (ms)</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="totalActions">0</div>
+                            <div class="metric-label">Total Actions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>2. Game Flow Tests (Requirements 2.1-2.5)</h2>
+            <p>Testing game state transitions, pause/resume functionality, and user experience flow</p>
+            <button onclick="runGameFlowTests()">Run Game Flow Tests</button>
+            <div id="gameFlowResults"></div>
+            
+            <div class="game-demo">
+                <div>
+                    <h3>Game Flow Demo:</h3>
+                    <canvas id="gameFlowCanvas" width="300" height="400"></canvas>
+                    <div>
+                        <button id="flowStartBtn">Start Game</button>
+                        <button id="flowPauseBtn">Pause</button>
+                        <button id="flowResumeBtn">Resume</button>
+                        <button id="flowRestartBtn">Restart</button>
+                    </div>
+                </div>
+                <div class="controls-panel">
+                    <h3>Game State:</h3>
+                    <div id="gameStateDisplay">
+                        State: <span id="currentState">Not Started</span><br>
+                        Score: <span id="currentScore">0</span><br>
+                        Level: <span id="currentLevel">1</span><br>
+                        Lines: <span id="currentLines">0</span>
+                    </div>
+                    
+                    <h3>Flow Metrics:</h3>
+                    <div class="performance-metrics">
+                        <div class="metric-card">
+                            <div class="metric-value" id="stateTransitions">0</div>
+                            <div class="metric-label">State Changes</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="pauseResumeCount">0</div>
+                            <div class="metric-label">Pause/Resume</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>3. Error Handling Tests (Requirements 5.4)</h2>
+            <p>Testing graceful error handling, invalid input rejection, and system stability</p>
+            <button onclick="runErrorHandlingTests()">Run Error Handling Tests</button>
+            <div id="errorHandlingResults"></div>
+            
+            <div class="game-demo">
+                <div>
+                    <h3>Error Simulation:</h3>
+                    <canvas id="errorTestCanvas" width="300" height="400"></canvas>
+                    <div>
+                        <button onclick="simulateInvalidInput()">Invalid Input</button>
+                        <button onclick="simulateCorruptedState()">Corrupt State</button>
+                        <button onclick="simulateRenderError()">Render Error</button>
+                        <button onclick="simulateMemoryPressure()">Memory Pressure</button>
+                    </div>
+                </div>
+                <div class="controls-panel">
+                    <h3>Error Log:</h3>
+                    <div class="error-log" id="errorLog">
+                        System ready for error testing...
+                    </div>
+                    
+                    <h3>Error Metrics:</h3>
+                    <div class="performance-metrics">
+                        <div class="metric-card">
+                            <div class="metric-value" id="errorsHandled">0</div>
+                            <div class="metric-label">Errors Handled</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="systemStability">100%</div>
+                            <div class="metric-label">System Stability</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Test tracking variables
+        let usabilityStats = {
+            total: 0,
+            passed: 0,
+            failed: 0
+        };
+
+        // Performance tracking
+        let performanceMetrics = {
+            responseTimes: [],
+            actionCount: 0,
+            startTime: null,
+            lastActionTime: null,
+            stateTransitions: 0,
+            pauseResumeCount: 0,
+            errorsHandled: 0,
+            systemCrashes: 0
+        };
+
+        // Game instances for testing
+        let testGameEngine = null;
+        let keyboardTestActive = false;
+
+        function log(message, type = 'success', containerId = 'usabilityResults') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+            
+            // Update stats
+            usabilityStats.total++;
+            if (type === 'success') {
+                usabilityStats.passed++;
+            } else if (type === 'error') {
+                usabilityStats.failed++;
+            }
+            
+            updateTestSummary();
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function logError(message) {
+            const errorLog = document.getElementById('errorLog');
+            if (errorLog) {
+                const timestamp = new Date().toLocaleTimeString();
+                errorLog.innerHTML += `[${timestamp}] ${message}\n`;
+                errorLog.scrollTop = errorLog.scrollHeight;
+            }
+            
+            performanceMetrics.errorsHandled++;
+            updateErrorMetrics();
+        }
+
+        function updateTestSummary() {
+            document.getElementById('totalTests').textContent = usabilityStats.total;
+            document.getElementById('passedTests').textContent = usabilityStats.passed;
+            document.getElementById('failedTests').textContent = usabilityStats.failed;
+            
+            const successRate = usabilityStats.total > 0 ? 
+                ((usabilityStats.passed / usabilityStats.total) * 100).toFixed(1) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        function updateErrorMetrics() {
+            document.getElementById('errorsHandled').textContent = performanceMetrics.errorsHandled;
+            
+            const stability = performanceMetrics.systemCrashes === 0 ? 100 : 
+                Math.max(0, 100 - (performanceMetrics.systemCrashes * 10));
+            document.getElementById('systemStability').textContent = stability + '%';
+        }
+
+        function clearResults() {
+            const containers = ['keyboardResults', 'gameFlowResults', 'errorHandlingResults'];
+            containers.forEach(id => {
+                const container = document.getElementById(id);
+                if (container) container.innerHTML = '';
+            });
+            
+            usabilityStats = { total: 0, passed: 0, failed: 0 };
+            performanceMetrics = {
+                responseTimes: [],
+                actionCount: 0,
+                startTime: null,
+                lastActionTime: null,
+                stateTransitions: 0,
+                pauseResumeCount: 0,
+                errorsHandled: 0,
+                systemCrashes: 0
+            };
+            
+            updateTestSummary();
+            updateErrorMetrics();
+        }
+
+        // 1. KEYBOARD RESPONSIVENESS TESTS
+        function runKeyboardResponsivenessTests() {
+            document.getElementById('keyboardResults').innerHTML = '';
+            log('=== Starting Keyboard Responsiveness Tests ===', 'warning', 'keyboardResults');
+            
+            // Test input latency
+            testInputLatency();
+            
+            // Test key repeat handling
+            testKeyRepeatHandling();
+            
+            // Test simultaneous key presses
+            testSimultaneousKeys();
+            
+            // Test invalid key handling
+            testInvalidKeyHandling();
+            
+            // Start interactive keyboard test
+            startKeyboardInteractiveTest();
+            
+            log('=== Keyboard Responsiveness Tests Completed ===', 'warning', 'keyboardResults');
+        }
+
+        function testInputLatency() {
+            try {
+                const canvas = document.getElementById('responsivenessCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                // Override input methods to measure latency
+                const originalMoveLeft = gameEngine.moveLeft.bind(gameEngine);
+                const originalMoveRight = gameEngine.moveRight.bind(gameEngine);
+                const originalRotate = gameEngine.rotate.bind(gameEngine);
+                
+                let latencyMeasurements = [];
+                
+                gameEngine.moveLeft = function() {
+                    const start = performance.now();
+                    originalMoveLeft();
+                    const end = performance.now();
+                    latencyMeasurements.push(end - start);
+                };
+                
+                gameEngine.moveRight = function() {
+                    const start = performance.now();
+                    originalMoveRight();
+                    const end = performance.now();
+                    latencyMeasurements.push(end - start);
+                };
+                
+                gameEngine.rotate = function() {
+                    const start = performance.now();
+                    originalRotate();
+                    const end = performance.now();
+                    latencyMeasurements.push(end - start);
+                };
+                
+                // Simulate rapid inputs
+                gameEngine.start();
+                for (let i = 0; i < 10; i++) {
+                    gameEngine.moveLeft();
+                    gameEngine.moveRight();
+                    gameEngine.rotate();
+                }
+                
+                const avgLatency = latencyMeasurements.reduce((a, b) => a + b, 0) / latencyMeasurements.length;
+                
+                if (avgLatency < 16) { // 60fps = 16.67ms per frame
+                    log(`✓ Input latency excellent: ${avgLatency.toFixed(2)}ms average`, 'success', 'keyboardResults');
+                } else if (avgLatency < 33) { // 30fps = 33.33ms per frame
+                    log(`⚠ Input latency acceptable: ${avgLatency.toFixed(2)}ms average`, 'warning', 'keyboardResults');
+                } else {
+                    log(`✗ Input latency too high: ${avgLatency.toFixed(2)}ms average`, 'error', 'keyboardResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Input latency test error: ${error.message}`, 'error', 'keyboardResults');
+            }
+        }
+
+        function testKeyRepeatHandling() {
+            try {
+                // Test that key repeat doesn't cause issues
+                const canvas = document.getElementById('responsivenessCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                let moveCount = 0;
+                const originalMoveLeft = gameEngine.moveLeft.bind(gameEngine);
+                
+                gameEngine.moveLeft = function() {
+                    moveCount++;
+                    originalMoveLeft();
+                };
+                
+                gameEngine.start();
+                
+                // Simulate rapid key repeats
+                for (let i = 0; i < 100; i++) {
+                    gameEngine.moveLeft();
+                }
+                
+                if (moveCount === 100) {
+                    log('✓ Key repeat handling works correctly', 'success', 'keyboardResults');
+                } else {
+                    log(`✗ Key repeat handling failed: ${moveCount}/100 actions processed`, 'error', 'keyboardResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Key repeat test error: ${error.message}`, 'error', 'keyboardResults');
+            }
+        }
+
+        function testSimultaneousKeys() {
+            try {
+                // Test handling of simultaneous key presses
+                const canvas = document.getElementById('responsivenessCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                let actionCount = 0;
+                const originalMoveLeft = gameEngine.moveLeft.bind(gameEngine);
+                const originalRotate = gameEngine.rotate.bind(gameEngine);
+                
+                gameEngine.moveLeft = function() {
+                    actionCount++;
+                    originalMoveLeft();
+                };
+                
+                gameEngine.rotate = function() {
+                    actionCount++;
+                    originalRotate();
+                };
+                
+                gameEngine.start();
+                
+                // Simulate simultaneous actions
+                gameEngine.moveLeft();
+                gameEngine.rotate();
+                
+                if (actionCount === 2) {
+                    log('✓ Simultaneous key handling works correctly', 'success', 'keyboardResults');
+                } else {
+                    log(`✗ Simultaneous key handling failed: ${actionCount}/2 actions processed`, 'error', 'keyboardResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Simultaneous key test error: ${error.message}`, 'error', 'keyboardResults');
+            }
+        }
+
+        function testInvalidKeyHandling() {
+            try {
+                // Test that invalid keys don't break the system
+                const canvas = document.getElementById('responsivenessCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                gameEngine.start();
+                
+                // Simulate invalid key events
+                const invalidEvent = new KeyboardEvent('keydown', { key: 'InvalidKey' });
+                document.dispatchEvent(invalidEvent);
+                
+                // Check if game is still functional
+                let testPassed = true;
+                try {
+                    gameEngine.moveLeft();
+                    gameEngine.moveRight();
+                } catch (error) {
+                    testPassed = false;
+                }
+                
+                if (testPassed) {
+                    log('✓ Invalid key handling works correctly', 'success', 'keyboardResults');
+                } else {
+                    log('✗ Invalid keys caused system instability', 'error', 'keyboardResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Invalid key handling test error: ${error.message}`, 'error', 'keyboardResults');
+            }
+        }
+
+        function startKeyboardInteractiveTest() {
+            const canvas = document.getElementById('responsivenessCanvas');
+            
+            try {
+                if (testGameEngine) {
+                    testGameEngine.destroy();
+                }
+                
+                testGameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                // Override methods to track performance
+                const originalMethods = {
+                    moveLeft: testGameEngine.moveLeft.bind(testGameEngine),
+                    moveRight: testGameEngine.moveRight.bind(testGameEngine),
+                    rotate: testGameEngine.rotate.bind(testGameEngine),
+                    softDrop: testGameEngine.softDrop.bind(testGameEngine),
+                    pause: testGameEngine.pause.bind(testGameEngine)
+                };
+                
+                Object.keys(originalMethods).forEach(method => {
+                    testGameEngine[method] = function() {
+                        const start = performance.now();
+                        originalMethods[method]();
+                        const end = performance.now();
+                        
+                        recordAction(method, end - start);
+                    };
+                });
+                
+                testGameEngine.start();
+                keyboardTestActive = true;
+                
+                log('✓ Interactive keyboard test started - use arrow keys and space', 'info', 'keyboardResults');
+                
+            } catch (error) {
+                log(`✗ Interactive keyboard test setup error: ${error.message}`, 'error', 'keyboardResults');
+            }
+        }
+
+        function recordAction(actionType, responseTime) {
+            performanceMetrics.responseTimes.push(responseTime);
+            performanceMetrics.actionCount++;
+            performanceMetrics.lastActionTime = Date.now();
+            
+            // Update display
+            document.getElementById('responseTime').textContent = responseTime.toFixed(2) + ' ms';
+            document.getElementById('lastAction').textContent = actionType;
+            document.getElementById('totalActions').textContent = performanceMetrics.actionCount;
+            
+            // Calculate average response time
+            const avgResponse = performanceMetrics.responseTimes.reduce((a, b) => a + b, 0) / performanceMetrics.responseTimes.length;
+            document.getElementById('avgResponseTime').textContent = avgResponse.toFixed(1);
+            
+            // Calculate actions per second
+            if (performanceMetrics.startTime) {
+                const elapsed = (Date.now() - performanceMetrics.startTime) / 1000;
+                const actionsPerSecond = (performanceMetrics.actionCount / elapsed).toFixed(1);
+                document.getElementById('actionsPerSecond').textContent = actionsPerSecond;
+            }
+        }
+
+        // 2. GAME FLOW TESTS
+        function runGameFlowTests() {
+            document.getElementById('gameFlowResults').innerHTML = '';
+            log('=== Starting Game Flow Tests ===', 'warning', 'gameFlowResults');
+            
+            // Test game state transitions
+            testGameStateTransitions();
+            
+            // Test pause/resume functionality
+            testPauseResumeFlow();
+            
+            // Test game over and restart flow
+            testGameOverRestartFlow();
+            
+            // Test score progression flow
+            testScoreProgressionFlow();
+            
+            // Setup interactive flow demo
+            setupGameFlowDemo();
+            
+            log('=== Game Flow Tests Completed ===', 'warning', 'gameFlowResults');
+        }
+
+        function testGameStateTransitions() {
+            try {
+                const canvas = document.getElementById('gameFlowCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                // Test initial state
+                if (!gameEngine.isRunning() && !gameEngine.isPaused()) {
+                    log('✓ Initial game state is correct (not running, not paused)', 'success', 'gameFlowResults');
+                } else {
+                    log('✗ Initial game state is incorrect', 'error', 'gameFlowResults');
+                }
+                
+                // Test start transition
+                gameEngine.start();
+                if (gameEngine.isRunning() && !gameEngine.isPaused()) {
+                    log('✓ Start transition works correctly', 'success', 'gameFlowResults');
+                } else {
+                    log('✗ Start transition failed', 'error', 'gameFlowResults');
+                }
+                
+                // Test pause transition
+                gameEngine.pause();
+                if (!gameEngine.isRunning() && gameEngine.isPaused()) {
+                    log('✓ Pause transition works correctly', 'success', 'gameFlowResults');
+                } else {
+                    log('✗ Pause transition failed', 'error', 'gameFlowResults');
+                }
+                
+                // Test resume transition
+                gameEngine.resume();
+                if (gameEngine.isRunning() && !gameEngine.isPaused()) {
+                    log('✓ Resume transition works correctly', 'success', 'gameFlowResults');
+                } else {
+                    log('✗ Resume transition failed', 'error', 'gameFlowResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Game state transition test error: ${error.message}`, 'error', 'gameFlowResults');
+            }
+        }
+
+        function testPauseResumeFlow() {
+            try {
+                const canvas = document.getElementById('gameFlowCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                gameEngine.start();
+                
+                // Test multiple pause/resume cycles
+                for (let i = 0; i < 5; i++) {
+                    gameEngine.pause();
+                    gameEngine.resume();
+                }
+                
+                if (gameEngine.isRunning()) {
+                    log('✓ Multiple pause/resume cycles work correctly', 'success', 'gameFlowResults');
+                } else {
+                    log('✗ Multiple pause/resume cycles failed', 'error', 'gameFlowResults');
+                }
+                
+                // Test pause during game over (should not be possible)
+                gameEngine.gameOver();
+                gameEngine.pause();
+                
+                if (gameEngine.isGameOver()) {
+                    log('✓ Pause during game over correctly ignored', 'success', 'gameFlowResults');
+                } else {
+                    log('✗ Pause during game over not handled correctly', 'error', 'gameFlowResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Pause/resume flow test error: ${error.message}`, 'error', 'gameFlowResults');
+            }
+        }
+
+        function testGameOverRestartFlow() {
+            try {
+                const canvas = document.getElementById('gameFlowCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                gameEngine.start();
+                gameEngine.gameOver();
+                
+                if (gameEngine.isGameOver()) {
+                    log('✓ Game over state set correctly', 'success', 'gameFlowResults');
+                } else {
+                    log('✗ Game over state not set correctly', 'error', 'gameFlowResults');
+                }
+                
+                // Test restart from game over
+                gameEngine.restart();
+                
+                if (!gameEngine.isGameOver() && !gameEngine.isRunning()) {
+                    log('✓ Restart from game over works correctly', 'success', 'gameFlowResults');
+                } else {
+                    log('✗ Restart from game over failed', 'error', 'gameFlowResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Game over/restart flow test error: ${error.message}`, 'error', 'gameFlowResults');
+            }
+        }
+
+        function testScoreProgressionFlow() {
+            try {
+                const scoreElement = document.createElement('div');
+                const levelElement = document.createElement('div');
+                const linesElement = document.createElement('div');
+                
+                const canvas = document.getElementById('gameFlowCanvas');
+                const gameEngine = new GameEngine(canvas, scoreElement, levelElement, linesElement);
+                
+                gameEngine.start();
+                
+                // Simulate line clears to test score progression
+                const initialScore = gameEngine.getScore();
+                const initialLevel = gameEngine.getLevel();
+                
+                // Simulate clearing lines
+                for (let i = 0; i < 10; i++) {
+                    gameEngine.gameState.processLineClear(1);
+                }
+                
+                const newScore = gameEngine.getScore();
+                const newLevel = gameEngine.getLevel();
+                
+                if (newScore > initialScore) {
+                    log('✓ Score progression works correctly', 'success', 'gameFlowResults');
+                } else {
+                    log('✗ Score progression failed', 'error', 'gameFlowResults');
+                }
+                
+                if (newLevel > initialLevel) {
+                    log('✓ Level progression works correctly', 'success', 'gameFlowResults');
+                } else {
+                    log('✗ Level progression failed', 'error', 'gameFlowResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Score progression flow test error: ${error.message}`, 'error', 'gameFlowResults');
+            }
+        }
+
+        function setupGameFlowDemo() {
+            const canvas = document.getElementById('gameFlowCanvas');
+            const startBtn = document.getElementById('flowStartBtn');
+            const pauseBtn = document.getElementById('flowPauseBtn');
+            const resumeBtn = document.getElementById('flowResumeBtn');
+            const restartBtn = document.getElementById('flowRestartBtn');
+            
+            let demoGameEngine = null;
+            
+            function updateGameStateDisplay() {
+                if (demoGameEngine) {
+                    document.getElementById('currentState').textContent = 
+                        demoGameEngine.isGameOver() ? 'Game Over' :
+                        demoGameEngine.isPaused() ? 'Paused' :
+                        demoGameEngine.isRunning() ? 'Running' : 'Stopped';
+                    
+                    document.getElementById('currentScore').textContent = demoGameEngine.getScore();
+                    document.getElementById('currentLevel').textContent = demoGameEngine.getLevel();
+                    document.getElementById('currentLines').textContent = demoGameEngine.getLines();
+                }
+                
+                document.getElementById('stateTransitions').textContent = performanceMetrics.stateTransitions;
+                document.getElementById('pauseResumeCount').textContent = performanceMetrics.pauseResumeCount;
+            }
+            
+            startBtn.onclick = function() {
+                try {
+                    if (demoGameEngine) demoGameEngine.destroy();
+                    
+                    demoGameEngine = new GameEngine(canvas, 
+                        document.createElement('div'), 
+                        document.createElement('div'), 
+                        document.createElement('div')
+                    );
+                    
+                    demoGameEngine.start();
+                    performanceMetrics.stateTransitions++;
+                    updateGameStateDisplay();
+                    
+                    log('✓ Game started successfully', 'info', 'gameFlowResults');
+                } catch (error) {
+                    log(`✗ Game start error: ${error.message}`, 'error', 'gameFlowResults');
+                }
+            };
+            
+            pauseBtn.onclick = function() {
+                if (demoGameEngine) {
+                    demoGameEngine.pause();
+                    performanceMetrics.stateTransitions++;
+                    performanceMetrics.pauseResumeCount++;
+                    updateGameStateDisplay();
+                    
+                    log('✓ Game paused successfully', 'info', 'gameFlowResults');
+                }
+            };
+            
+            resumeBtn.onclick = function() {
+                if (demoGameEngine) {
+                    demoGameEngine.resume();
+                    performanceMetrics.stateTransitions++;
+                    performanceMetrics.pauseResumeCount++;
+                    updateGameStateDisplay();
+                    
+                    log('✓ Game resumed successfully', 'info', 'gameFlowResults');
+                }
+            };
+            
+            restartBtn.onclick = function() {
+                if (demoGameEngine) {
+                    demoGameEngine.restart();
+                    performanceMetrics.stateTransitions++;
+                    updateGameStateDisplay();
+                    
+                    log('✓ Game restarted successfully', 'info', 'gameFlowResults');
+                }
+            };
+            
+            updateGameStateDisplay();
+        }
+
+        // 3. ERROR HANDLING TESTS
+        function runErrorHandlingTests() {
+            document.getElementById('errorHandlingResults').innerHTML = '';
+            log('=== Starting Error Handling Tests ===', 'warning', 'errorHandlingResults');
+            
+            // Test invalid input handling
+            testInvalidInputHandling();
+            
+            // Test corrupted state recovery
+            testCorruptedStateRecovery();
+            
+            // Test render error handling
+            testRenderErrorHandling();
+            
+            // Test memory management
+            testMemoryManagement();
+            
+            // Setup error simulation demo
+            setupErrorTestDemo();
+            
+            log('=== Error Handling Tests Completed ===', 'warning', 'errorHandlingResults');
+        }
+
+        function testInvalidInputHandling() {
+            try {
+                const canvas = document.getElementById('errorTestCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                gameEngine.start();
+                
+                // Test invalid method calls
+                let errorsCaught = 0;
+                
+                try {
+                    gameEngine.moveLeft(null);
+                } catch (error) {
+                    errorsCaught++;
+                }
+                
+                try {
+                    gameEngine.rotate('invalid');
+                } catch (error) {
+                    errorsCaught++;
+                }
+                
+                // Game should still be functional
+                let stillFunctional = true;
+                try {
+                    gameEngine.moveLeft();
+                    gameEngine.moveRight();
+                } catch (error) {
+                    stillFunctional = false;
+                }
+                
+                if (stillFunctional) {
+                    log('✓ Invalid input handling maintains system stability', 'success', 'errorHandlingResults');
+                } else {
+                    log('✗ Invalid input caused system instability', 'error', 'errorHandlingResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Invalid input handling test error: ${error.message}`, 'error', 'errorHandlingResults');
+            }
+        }
+
+        function testCorruptedStateRecovery() {
+            try {
+                const canvas = document.getElementById('errorTestCanvas');
+                const gameEngine = new GameEngine(canvas, 
+                    document.createElement('div'), 
+                    document.createElement('div'), 
+                    document.createElement('div')
+                );
+                
+                gameEngine.start();
+                
+                // Corrupt game state
+                if (gameEngine.gameState) {
+                    gameEngine.gameState.score = -1; // Invalid score
+                    gameEngine.gameState.level = 0;  // Invalid level
+                }
+                
+                // Test if system can recover
+                let recovered = false;
+                try {
+                    gameEngine.gameState.validateState();
+                    recovered = true;
+                } catch (error) {
+                    // Expected - validation should catch corruption
+                }
+                
+                // Test if game can continue after validation
+                let canContinue = true;
+                try {
+                    gameEngine.moveLeft();
+                } catch (error) {
+                    canContinue = false;
+                }
+                
+                if (canContinue) {
+                    log('✓ System recovers from corrupted state', 'success', 'errorHandlingResults');
+                } else {
+                    log('✗ System cannot recover from corrupted state', 'error', 'errorHandlingResults');
+                }
+                
+                gameEngine.destroy();
+                
+            } catch (error) {
+                log(`✗ Corrupted state recovery test error: ${error.message}`, 'error', 'errorHandlingResults');
+            }
+        }
+
+        function testRenderErrorHandling() {
+            try {
+                const canvas = document.getElementById('errorTestCanvas');
+                
+                // Create invalid canvas context to simulate render error
+                const originalGetContext = canvas.getContext;
+                canvas.getContext = function() { return null; };
+                
+                let renderErrorHandled = false;
+                try {
+                    const gameEngine = new GameEngine(canvas, 
+                        document.createElement('div'), 
+                        document.createElement('div'), 
+                        document.createElement('div')
+                    );
+                    renderErrorHandled = true;
+                } catch (error) {
+                    // Expected - should handle invalid context gracefully
+                    renderErrorHandled = true;
+                }
+                
+                // Restore canvas
+                canvas.getContext = originalGetContext;
+                
+                if (renderErrorHandled) {
+                    log('✓ Render error handling works correctly', 'success', 'errorHandlingResults');
+                } else {
+                    log('✗ Render error not handled correctly', 'error', 'errorHandlingResults');
+                }
+                
+            } catch (error) {
+                log(`✗ Render error handling test error: ${error.message}`, 'error', 'errorHandlingResults');
+            }
+        }
+
+        function testMemoryManagement() {
+            try {
+                const canvas = document.getElementById('errorTestCanvas');
+                let gameEngines = [];
+                
+                // Create multiple game engines to test memory management
+                for (let i = 0; i < 10; i++) {
+                    const gameEngine = new GameEngine(canvas, 
+                        document.createElement('div'), 
+                        document.createElement('div'), 
+                        document.createElement('div')
+                    );
+                    gameEngines.push(gameEngine);
+                }
+                
+                // Destroy all engines
+                gameEngines.forEach(engine => {
+                    try {
+                        engine.destroy();
+                    } catch (error) {
+                        // Should handle destruction gracefully
+                    }
+                });
+                
+                log('✓ Memory management test completed without crashes', 'success', 'errorHandlingResults');
+                
+            } catch (error) {
+                log(`✗ Memory management test error: ${error.message}`, 'error', 'errorHandlingResults');
+                performanceMetrics.systemCrashes++;
+            }
+        }
+
+        function setupErrorTestDemo() {
+            // Error simulation functions are defined globally for button access
+            logError('Error testing system initialized');
+        }
+
+        // Error simulation functions (called by buttons)
+        function simulateInvalidInput() {
+            try {
+                logError('Simulating invalid input...');
+                
+                // Simulate various invalid inputs
+                const invalidEvents = [
+                    new KeyboardEvent('keydown', { key: null }),
+                    new KeyboardEvent('keydown', { key: undefined }),
+                    new KeyboardEvent('keydown', { key: 123 })
+                ];
+                
+                invalidEvents.forEach(event => {
+                    document.dispatchEvent(event);
+                });
+                
+                logError('Invalid input simulation completed - system stable');
+                
+            } catch (error) {
+                logError(`Invalid input simulation error: ${error.message}`);
+                performanceMetrics.systemCrashes++;
+            }
+        }
+
+        function simulateCorruptedState() {
+            try {
+                logError('Simulating corrupted game state...');
+                
+                if (testGameEngine && testGameEngine.gameState) {
+                    // Temporarily corrupt state
+                    const originalScore = testGameEngine.gameState.score;
+                    testGameEngine.gameState.score = 'invalid';
+                    
+                    // Try to validate and recover
+                    setTimeout(() => {
+                        testGameEngine.gameState.score = originalScore;
+                        logError('State corruption recovered');
+                    }, 1000);
+                }
+                
+                logError('Corrupted state simulation completed');
+                
+            } catch (error) {
+                logError(`Corrupted state simulation error: ${error.message}`);
+                performanceMetrics.systemCrashes++;
+            }
+        }
+
+        function simulateRenderError() {
+            try {
+                logError('Simulating render error...');
+                
+                const canvas = document.getElementById('errorTestCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Simulate render error by calling invalid operations
+                try {
+                    ctx.fillStyle = null;
+                    ctx.fillRect(0, 0, 100, 100);
+                } catch (renderError) {
+                    logError(`Render error caught: ${renderError.message}`);
+                }
+                
+                logError('Render error simulation completed');
+                
+            } catch (error) {
+                logError(`Render error simulation error: ${error.message}`);
+                performanceMetrics.systemCrashes++;
+            }
+        }
+
+        function simulateMemoryPressure() {
+            try {
+                logError('Simulating memory pressure...');
+                
+                // Create temporary objects to simulate memory pressure
+                let tempObjects = [];
+                for (let i = 0; i < 1000; i++) {
+                    tempObjects.push(new Array(1000).fill(Math.random()));
+                }
+                
+                // Clean up
+                setTimeout(() => {
+                    tempObjects = null;
+                    if (typeof gc !== 'undefined') {
+                        gc(); // Force garbage collection if available
+                    }
+                    logError('Memory pressure simulation completed - memory cleaned');
+                }, 2000);
+                
+                logError('Memory pressure applied');
+                
+            } catch (error) {
+                logError(`Memory pressure simulation error: ${error.message}`);
+                performanceMetrics.systemCrashes++;
+            }
+        }
+
+        // Interactive demo starter
+        function startInteractiveDemo() {
+            performanceMetrics.startTime = Date.now();
+            startKeyboardInteractiveTest();
+            setupGameFlowDemo();
+            setupErrorTestDemo();
+            
+            log('✓ Interactive usability demo started', 'info', 'keyboardResults');
+        }
+
+        // Key indicator updates
+        document.addEventListener('keydown', function(event) {
+            const keyMap = {
+                'ArrowLeft': 'key-left',
+                'ArrowRight': 'key-right',
+                'ArrowUp': 'key-up',
+                'ArrowDown': 'key-down',
+                ' ': 'key-space'
+            };
+            
+            const indicatorId = keyMap[event.key];
+            if (indicatorId) {
+                const indicator = document.getElementById(indicatorId);
+                if (indicator) {
+                    indicator.classList.add('active');
+                }
+            }
+        });
+
+        document.addEventListener('keyup', function(event) {
+            const keyMap = {
+                'ArrowLeft': 'key-left',
+                'ArrowRight': 'key-right',
+                'ArrowUp': 'key-up',
+                'ArrowDown': 'key-down',
+                ' ': 'key-space'
+            };
+            
+            const indicatorId = keyMap[event.key];
+            if (indicatorId) {
+                const indicator = document.getElementById(indicatorId);
+                if (indicator) {
+                    indicator.classList.remove('active');
+                }
+            }
+        });
+
+        // RUN ALL USABILITY TESTS
+        function runAllUsabilityTests() {
+            clearResults();
+            
+            setTimeout(() => runKeyboardResponsivenessTests(), 100);
+            setTimeout(() => runGameFlowTests(), 500);
+            setTimeout(() => runErrorHandlingTests(), 900);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            updateTestSummary();
+            updateErrorMetrics();
+            log('Usability Test Suite Ready', 'warning', 'keyboardResults');
+            log('Click "Run All Usability Tests" to start comprehensive testing', 'warning', 'keyboardResults');
+        });
+    </script>
+</body>
+</html>

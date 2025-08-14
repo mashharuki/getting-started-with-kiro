@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Input System Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .test-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px;
+            text-align: center;
+            min-width: 400px;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .info-item {
+            background: rgba(0, 240, 240, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00f0f0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        canvas {
+            border: 2px solid white;
+            background: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tetris Input System Test</h1>
+    
+    <div class="test-container">
+        <h2>Game Canvas</h2>
+        <canvas id="gameCanvas" width="300" height="600"></canvas>
+        
+        <div class="game-info">
+            <div class="info-item">
+                <h3>Score</h3>
+                <div id="scoreValue" class="value">0</div>
+            </div>
+            <div class="info-item">
+                <h3>Level</h3>
+                <div id="levelValue" class="value">1</div>
+            </div>
+            <div class="info-item">
+                <h3>Lines</h3>
+                <div id="linesValue" class="value">0</div>
+            </div>
+        </div>
+        
+        <div>
+            <button id="startButton">Start Game</button>
+            <button id="pauseButton">Pause/Resume</button>
+            <button onclick="resetTest()">Reset Test</button>
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Controls</h2>
+        <div class="controls">
+            <p><strong>Keyboard Controls:</strong></p>
+            <p>← → : Move left/right</p>
+            <p>↑ : Rotate piece</p>
+            <p>↓ : Soft drop</p>
+            <p>Space/Esc : Pause/Resume</p>
+        </div>
+        
+        <h3>Action Log</h3>
+        <div id="actionLog" class="log"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let gameEngine;
+        let logElement;
+        
+        function log(message) {
+            if (logElement) {
+                const timestamp = new Date().toLocaleTimeString();
+                logElement.innerHTML += `[${timestamp}] ${message}\n`;
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+            console.log(message);
+        }
+        
+        function resetTest() {
+            if (gameEngine) {
+                gameEngine.destroy();
+            }
+            
+            logElement.innerHTML = '';
+            log('Test reset - initializing new game engine...');
+            
+            initializeTest();
+        }
+        
+        function initializeTest() {
+            // Get DOM elements
+            const canvas = document.getElementById('gameCanvas');
+            const scoreElement = document.getElementById('scoreValue');
+            const levelElement = document.getElementById('levelValue');
+            const linesElement = document.getElementById('linesValue');
+            const startButton = document.getElementById('startButton');
+            const pauseButton = document.getElementById('pauseButton');
+            
+            logElement = document.getElementById('actionLog');
+            
+            try {
+                // Create game engine
+                gameEngine = new GameEngine(canvas, scoreElement, levelElement, linesElement);
+                log('Game engine created successfully');
+                
+                // Override some methods to add logging
+                const originalMoveLeft = gameEngine.moveLeft.bind(gameEngine);
+                const originalMoveRight = gameEngine.moveRight.bind(gameEngine);
+                const originalRotate = gameEngine.rotate.bind(gameEngine);
+                const originalSoftDrop = gameEngine.softDrop.bind(gameEngine);
+                const originalPause = gameEngine.pause.bind(gameEngine);
+                
+                gameEngine.moveLeft = function() {
+                    log('Input: Move Left');
+                    originalMoveLeft();
+                };
+                
+                gameEngine.moveRight = function() {
+                    log('Input: Move Right');
+                    originalMoveRight();
+                };
+                
+                gameEngine.rotate = function() {
+                    log('Input: Rotate');
+                    originalRotate();
+                };
+                
+                gameEngine.softDrop = function() {
+                    log('Input: Soft Drop');
+                    originalSoftDrop();
+                };
+                
+                gameEngine.pause = function() {
+                    log('Input: Pause/Resume');
+                    originalPause();
+                };
+                
+                // Set up button listeners
+                startButton.addEventListener('click', function() {
+                    log('Button: Start Game clicked');
+                    gameEngine.start();
+                });
+                
+                pauseButton.addEventListener('click', function() {
+                    log('Button: Pause clicked');
+                    gameEngine.pause();
+                });
+                
+                log('Input system test ready!');
+                log('Press Start Game to begin, then use keyboard controls');
+                
+            } catch (error) {
+                log('Error initializing game engine: ' + error.message);
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log('DOM loaded, initializing input test...');
+            initializeTest();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Basic Functionality Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1a1a2e;
+            color: white;
+        }
+        
+        .test-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-width: 1200px;
+        }
+        
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        
+        .test-result {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .success {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+        
+        .error {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+        
+        .warning {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .run-all {
+            background-color: #28a745;
+        }
+        
+        .run-all:hover {
+            background-color: #1e7e34;
+        }
+        
+        .stats {
+            background-color: rgba(0, 123, 255, 0.1);
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border: 1px solid #007bff;
+        }
+        
+        .visual-test {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        
+        canvas {
+            border: 2px solid white;
+            background: black;
+        }
+        
+        .tetromino-display {
+            text-align: center;
+            margin: 10px;
+        }
+        
+        .collision-test-board {
+            font-family: monospace;
+            background: black;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Tetris Basic Functionality Test Suite</h1>
+        <p>Requirements: 1.1, 1.2, 1.3, 1.4 - Testing core game mechanics</p>
+        
+        <div class="stats" id="testSummary">
+            <strong>Test Summary:</strong><br>
+            Total Tests: <span id="totalTests">0</span><br>
+            Passed: <span id="passedTests">0</span><br>
+            Failed: <span id="failedTests">0</span><br>
+            Success Rate: <span id="successRate">0%</span>
+        </div>
+        
+        <button class="run-all" onclick="runAllTests()">Run All Tests</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>1. Tetromino Operation Tests (Requirement 1.2)</h2>
+            <p>Testing all 7 tetromino types for proper shape, rotation, and color properties</p>
+            <button onclick="runTetrominoTests()">Run Tetromino Tests</button>
+            <div id="tetrominoResults"></div>
+            
+            <div class="visual-test" id="tetrominoVisual">
+                <h3>Visual Tetromino Display:</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>2. Collision Detection Tests (Requirements 1.2, 1.4)</h2>
+            <p>Testing boundary collision, piece collision, and position validation</p>
+            <button onclick="runCollisionTests()">Run Collision Tests</button>
+            <div id="collisionResults"></div>
+            
+            <div class="visual-test">
+                <div>
+                    <h3>Test Board Visualization:</h3>
+                    <canvas id="collisionCanvas" width="300" height="400"></canvas>
+                </div>
+                <div class="collision-test-board" id="collisionBoard">
+                    <!-- Collision test visualization will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>3. Line Clearing Tests (Requirements 1.3, 3.2)</h2>
+            <p>Testing line completion detection, clearing mechanics, and block dropping</p>
+            <button onclick="runLineClearTests()">Run Line Clear Tests</button>
+            <div id="lineClearResults"></div>
+            
+            <div class="visual-test">
+                <div>
+                    <h3>Before Line Clear:</h3>
+                    <canvas id="beforeCanvas" width="300" height="400"></canvas>
+                </div>
+                <div>
+                    <h3>After Line Clear:</h3>
+                    <canvas id="afterCanvas" width="300" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Test tracking variables
+        let testStats = {
+            total: 0,
+            passed: 0,
+            failed: 0
+        };
+
+        function log(message, type = 'success', containerId = 'testResults') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+            
+            // Update stats
+            testStats.total++;
+            if (type === 'success') {
+                testStats.passed++;
+            } else if (type === 'error') {
+                testStats.failed++;
+            }
+            
+            updateTestSummary();
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function updateTestSummary() {
+            document.getElementById('totalTests').textContent = testStats.total;
+            document.getElementById('passedTests').textContent = testStats.passed;
+            document.getElementById('failedTests').textContent = testStats.failed;
+            
+            const successRate = testStats.total > 0 ? 
+                ((testStats.passed / testStats.total) * 100).toFixed(1) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        function clearResults() {
+            const containers = ['tetrominoResults', 'collisionResults', 'lineClearResults'];
+            containers.forEach(id => {
+                const container = document.getElementById(id);
+                if (container) container.innerHTML = '';
+            });
+            
+            testStats = { total: 0, passed: 0, failed: 0 };
+            updateTestSummary();
+        }
+
+        // 1. TETROMINO OPERATION TESTS
+        function runTetrominoTests() {
+            document.getElementById('tetrominoResults').innerHTML = '';
+            log('=== Starting Tetromino Tests ===', 'warning', 'tetrominoResults');
+            
+            const tetrominoTypes = ['I', 'O', 'T', 'S', 'Z', 'J', 'L'];
+            
+            // Test 1.1: Validate tetromino data structure
+            try {
+                if (validateTetrominoData()) {
+                    log('✓ Tetromino data structure validation passed', 'success', 'tetrominoResults');
+                } else {
+                    log('✗ Tetromino data structure validation failed', 'error', 'tetrominoResults');
+                }
+            } catch (error) {
+                log(`✗ Tetromino data validation error: ${error.message}`, 'error', 'tetrominoResults');
+            }
+
+            // Test 1.2: Test each tetromino type
+            tetrominoTypes.forEach(type => {
+                testSingleTetromino(type);
+            });
+
+            // Test 1.3: Test random tetromino generation
+            testRandomTetrominoGeneration();
+
+            // Visual display
+            displayTetrominoVisuals();
+            
+            log('=== Tetromino Tests Completed ===', 'warning', 'tetrominoResults');
+        }
+
+        function testSingleTetromino(type) {
+            try {
+                const tetromino = new Tetromino(type);
+                
+                // Test creation
+                if (tetromino.getType() === type) {
+                    log(`✓ ${type} tetromino created successfully`, 'success', 'tetrominoResults');
+                } else {
+                    log(`✗ ${type} tetromino type mismatch`, 'error', 'tetrominoResults');
+                    return;
+                }
+
+                // Test initial properties
+                const initialShape = tetromino.getShape();
+                const color = tetromino.getColor();
+                const rotation = tetromino.getRotation();
+
+                if (Array.isArray(initialShape) && initialShape.length > 0) {
+                    log(`✓ ${type} has valid initial shape`, 'success', 'tetrominoResults');
+                } else {
+                    log(`✗ ${type} has invalid initial shape`, 'error', 'tetrominoResults');
+                }
+
+                if (typeof color === 'string' && color.startsWith('#')) {
+                    log(`✓ ${type} has valid color: ${color}`, 'success', 'tetrominoResults');
+                } else {
+                    log(`✗ ${type} has invalid color: ${color}`, 'error', 'tetrominoResults');
+                }
+
+                if (rotation === 0) {
+                    log(`✓ ${type} starts with rotation 0`, 'success', 'tetrominoResults');
+                } else {
+                    log(`✗ ${type} starts with rotation ${rotation}, expected 0`, 'error', 'tetrominoResults');
+                }
+
+                // Test rotation functionality
+                testTetrominoRotation(tetromino, type);
+
+                // Test validation
+                if (tetromino.validateCurrentShape()) {
+                    log(`✓ ${type} shape validation passed`, 'success', 'tetrominoResults');
+                } else {
+                    log(`✗ ${type} shape validation failed`, 'error', 'tetrominoResults');
+                }
+
+                // Test cloning
+                const clone = tetromino.clone();
+                if (clone.getType() === type && clone.getRotation() === tetromino.getRotation()) {
+                    log(`✓ ${type} cloning works correctly`, 'success', 'tetrominoResults');
+                } else {
+                    log(`✗ ${type} cloning failed`, 'error', 'tetrominoResults');
+                }
+
+            } catch (error) {
+                log(`✗ ${type} tetromino test error: ${error.message}`, 'error', 'tetrominoResults');
+            }
+        }
+
+        function testTetrominoRotation(tetromino, type) {
+            const originalRotation = tetromino.getRotation();
+            
+            try {
+                // Test 4 rotations (should return to original)
+                for (let i = 0; i < 4; i++) {
+                    const beforeShape = JSON.stringify(tetromino.getShape());
+                    tetromino.rotate();
+                    const afterShape = JSON.stringify(tetromino.getShape());
+                    
+                    if (beforeShape !== afterShape || i === 3) {
+                        // Shape should change (except possibly for O piece)
+                        if (type === 'O' && beforeShape === afterShape) {
+                            // O piece doesn't change shape when rotated
+                            continue;
+                        } else if (type !== 'O' && beforeShape === afterShape && i < 3) {
+                            log(`⚠ ${type} rotation ${i+1} didn't change shape`, 'warning', 'tetrominoResults');
+                        }
+                    }
+                }
+
+                // Should be back to original rotation
+                if (tetromino.getRotation() === originalRotation) {
+                    log(`✓ ${type} completed full rotation cycle`, 'success', 'tetrominoResults');
+                } else {
+                    log(`✗ ${type} rotation cycle failed: ${tetromino.getRotation()} != ${originalRotation}`, 'error', 'tetrominoResults');
+                }
+
+                // Test counter-clockwise rotation
+                tetromino.rotateCounterClockwise();
+                if (tetromino.getRotation() === 3) {
+                    log(`✓ ${type} counter-clockwise rotation works`, 'success', 'tetrominoResults');
+                } else {
+                    log(`✗ ${type} counter-clockwise rotation failed`, 'error', 'tetrominoResults');
+                }
+
+                // Reset to original
+                tetromino.setRotation(originalRotation);
+
+            } catch (error) {
+                log(`✗ ${type} rotation test error: ${error.message}`, 'error', 'tetrominoResults');
+            }
+        }
+
+        function testRandomTetrominoGeneration() {
+            try {
+                const generatedTypes = new Set();
+                
+                // Generate 50 random tetrominoes
+                for (let i = 0; i < 50; i++) {
+                    const randomTetromino = createRandomTetromino();
+                    generatedTypes.add(randomTetromino.getType());
+                }
+
+                if (generatedTypes.size === 7) {
+                    log('✓ Random generation produces all 7 tetromino types', 'success', 'tetrominoResults');
+                } else {
+                    log(`⚠ Random generation produced ${generatedTypes.size}/7 types in 50 attempts`, 'warning', 'tetrominoResults');
+                }
+
+            } catch (error) {
+                log(`✗ Random tetromino generation test error: ${error.message}`, 'error', 'tetrominoResults');
+            }
+        }
+
+        function displayTetrominoVisuals() {
+            const container = document.getElementById('tetrominoVisual');
+            container.innerHTML = '<h3>Visual Tetromino Display:</h3>';
+            
+            const tetrominoTypes = ['I', 'O', 'T', 'S', 'Z', 'J', 'L'];
+            
+            tetrominoTypes.forEach(type => {
+                try {
+                    const tetromino = new Tetromino(type);
+                    const div = document.createElement('div');
+                    div.className = 'tetromino-display';
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 80;
+                    canvas.height = 80;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Draw tetromino
+                    drawTetrominoOnCanvas(ctx, tetromino, 80, 80);
+                    
+                    div.appendChild(canvas);
+                    div.appendChild(document.createElement('br'));
+                    div.appendChild(document.createTextNode(type));
+                    
+                    container.appendChild(div);
+                } catch (error) {
+                    console.error(`Error displaying ${type}:`, error);
+                }
+            });
+        }
+
+        function drawTetrominoOnCanvas(ctx, tetromino, canvasWidth, canvasHeight) {
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            
+            const shape = tetromino.getShape();
+            const color = tetromino.getColor();
+            
+            const blockSize = Math.min(
+                canvasWidth / (shape[0].length + 1),
+                canvasHeight / (shape.length + 1)
+            );
+            
+            const offsetX = (canvasWidth - shape[0].length * blockSize) / 2;
+            const offsetY = (canvasHeight - shape.length * blockSize) / 2;
+            
+            ctx.fillStyle = color;
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 1;
+            
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    if (shape[row][col] === 1) {
+                        const x = offsetX + col * blockSize;
+                        const y = offsetY + row * blockSize;
+                        
+                        ctx.fillRect(x, y, blockSize, blockSize);
+                        ctx.strokeRect(x, y, blockSize, blockSize);
+                    }
+                }
+            }
+        }
+
+        // 2. COLLISION DETECTION TESTS
+        function runCollisionTests() {
+            document.getElementById('collisionResults').innerHTML = '';
+            log('=== Starting Collision Detection Tests ===', 'warning', 'collisionResults');
+            
+            const gameBoard = new GameBoard();
+            
+            // Test boundary collision
+            testBoundaryCollision(gameBoard);
+            
+            // Test piece collision
+            testPieceCollision(gameBoard);
+            
+            // Test position validation
+            testPositionValidation(gameBoard);
+            
+            // Visual demonstration
+            visualizeCollisionTests(gameBoard);
+            
+            log('=== Collision Detection Tests Completed ===', 'warning', 'collisionResults');
+        }
+
+        function testBoundaryCollision(gameBoard) {
+            try {
+                const tetromino = new Tetromino('I'); // Long piece for boundary testing
+                
+                // Test left boundary
+                if (!gameBoard.isValidPosition(tetromino, -1, 5)) {
+                    log('✓ Left boundary collision detected correctly', 'success', 'collisionResults');
+                } else {
+                    log('✗ Left boundary collision not detected', 'error', 'collisionResults');
+                }
+
+                // Test right boundary
+                if (!gameBoard.isValidPosition(tetromino, 7, 5)) {
+                    log('✓ Right boundary collision detected correctly', 'success', 'collisionResults');
+                } else {
+                    log('✗ Right boundary collision not detected', 'error', 'collisionResults');
+                }
+
+                // Test top boundary (should be valid)
+                if (gameBoard.isValidPosition(tetromino, 3, 0)) {
+                    log('✓ Top boundary allows valid placement', 'success', 'collisionResults');
+                } else {
+                    log('✗ Top boundary incorrectly blocks valid placement', 'error', 'collisionResults');
+                }
+
+                // Test bottom boundary
+                if (!gameBoard.isValidPosition(tetromino, 3, 20)) {
+                    log('✓ Bottom boundary collision detected correctly', 'success', 'collisionResults');
+                } else {
+                    log('✗ Bottom boundary collision not detected', 'error', 'collisionResults');
+                }
+
+                // Test valid position
+                if (gameBoard.isValidPosition(tetromino, 3, 5)) {
+                    log('✓ Valid position correctly identified', 'success', 'collisionResults');
+                } else {
+                    log('✗ Valid position incorrectly rejected', 'error', 'collisionResults');
+                }
+
+            } catch (error) {
+                log(`✗ Boundary collision test error: ${error.message}`, 'error', 'collisionResults');
+            }
+        }
+
+        function testPieceCollision(gameBoard) {
+            try {
+                // Place some blocks on the board
+                gameBoard.setCellValue(19, 4, 1);
+                gameBoard.setCellValue(19, 5, 1);
+                gameBoard.setCellValue(18, 4, 1);
+
+                const tetromino = new Tetromino('O'); // 2x2 square
+
+                // Test collision with existing pieces
+                if (!gameBoard.isValidPosition(tetromino, 4, 18)) {
+                    log('✓ Piece collision detected correctly', 'success', 'collisionResults');
+                } else {
+                    log('✗ Piece collision not detected', 'error', 'collisionResults');
+                }
+
+                // Test valid position next to pieces
+                if (gameBoard.isValidPosition(tetromino, 6, 18)) {
+                    log('✓ Valid position next to pieces correctly identified', 'success', 'collisionResults');
+                } else {
+                    log('✗ Valid position next to pieces incorrectly rejected', 'error', 'collisionResults');
+                }
+
+                // Test hasCollision method
+                if (gameBoard.hasCollision(tetromino, 4, 18)) {
+                    log('✓ hasCollision method works correctly', 'success', 'collisionResults');
+                } else {
+                    log('✗ hasCollision method failed', 'error', 'collisionResults');
+                }
+
+                // Test isWithinBounds method
+                if (gameBoard.isWithinBounds(tetromino, 4, 18)) {
+                    log('✓ isWithinBounds method works correctly', 'success', 'collisionResults');
+                } else {
+                    log('✗ isWithinBounds method failed', 'error', 'collisionResults');
+                }
+
+            } catch (error) {
+                log(`✗ Piece collision test error: ${error.message}`, 'error', 'collisionResults');
+            }
+        }
+
+        function testPositionValidation(gameBoard) {
+            try {
+                const tetromino = new Tetromino('T');
+
+                // Test invalid inputs
+                if (!gameBoard.isValidPosition(null, 5, 5)) {
+                    log('✓ Null tetromino correctly rejected', 'success', 'collisionResults');
+                } else {
+                    log('✗ Null tetromino not rejected', 'error', 'collisionResults');
+                }
+
+                if (!gameBoard.isValidPosition(tetromino, 'invalid', 5)) {
+                    log('✓ Invalid x coordinate correctly rejected', 'success', 'collisionResults');
+                } else {
+                    log('✗ Invalid x coordinate not rejected', 'error', 'collisionResults');
+                }
+
+                if (!gameBoard.isValidPosition(tetromino, 5, 'invalid')) {
+                    log('✓ Invalid y coordinate correctly rejected', 'success', 'collisionResults');
+                } else {
+                    log('✗ Invalid y coordinate not rejected', 'error', 'collisionResults');
+                }
+
+                // Test edge cases
+                if (gameBoard.isValidPosition(tetromino, 0, 0)) {
+                    log('✓ Top-left corner position validation works', 'success', 'collisionResults');
+                } else {
+                    log('✗ Top-left corner position validation failed', 'error', 'collisionResults');
+                }
+
+            } catch (error) {
+                log(`✗ Position validation test error: ${error.message}`, 'error', 'collisionResults');
+            }
+        }
+
+        function visualizeCollisionTests(gameBoard) {
+            const canvas = document.getElementById('collisionCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw board grid
+            const blockSize = 15;
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            
+            for (let row = 0; row <= 20; row++) {
+                ctx.beginPath();
+                ctx.moveTo(0, row * blockSize);
+                ctx.lineTo(300, row * blockSize);
+                ctx.stroke();
+            }
+            
+            for (let col = 0; col <= 10; col++) {
+                ctx.beginPath();
+                ctx.moveTo(col * 30, 0);
+                ctx.lineTo(col * 30, 400);
+                ctx.stroke();
+            }
+            
+            // Draw existing pieces
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(4 * 30, 19 * 20, 30, 20);
+            ctx.fillRect(5 * 30, 19 * 20, 30, 20);
+            ctx.fillRect(4 * 30, 18 * 20, 30, 20);
+            
+            // Draw test tetromino in collision position
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.7)';
+            const tetromino = new Tetromino('O');
+            const shape = tetromino.getShape();
+            
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    if (shape[row][col] === 1) {
+                        ctx.fillRect((4 + col) * 30, (18 + row) * 20, 30, 20);
+                    }
+                }
+            }
+            
+            // Update text display
+            const boardDisplay = document.getElementById('collisionBoard');
+            boardDisplay.innerHTML = `
+Collision Test Visualization:
+- Red blocks: Existing pieces on board
+- Yellow blocks: Test tetromino (O-piece)
+- Position (4,18): COLLISION DETECTED ✓
+- This demonstrates piece-to-piece collision detection
+            `;
+        }
+
+        // 3. LINE CLEARING TESTS
+        function runLineClearTests() {
+            document.getElementById('lineClearResults').innerHTML = '';
+            log('=== Starting Line Clear Tests ===', 'warning', 'lineClearResults');
+            
+            // Test line completion detection
+            testLineCompletionDetection();
+            
+            // Test single line clearing
+            testSingleLineClear();
+            
+            // Test multiple line clearing
+            testMultipleLineClear();
+            
+            // Test line clearing with gaps
+            testLineClearWithGaps();
+            
+            // Visual demonstration
+            visualizeLineClearTests();
+            
+            log('=== Line Clear Tests Completed ===', 'lineClearResults');
+        }
+
+        function testLineCompletionDetection() {
+            try {
+                const gameBoard = new GameBoard();
+                
+                // Create a complete line at bottom
+                for (let col = 0; col < 10; col++) {
+                    gameBoard.setCellValue(19, col, 1);
+                }
+                
+                if (gameBoard.isLineComplete(19)) {
+                    log('✓ Complete line correctly detected', 'success', 'lineClearResults');
+                } else {
+                    log('✗ Complete line not detected', 'error', 'lineClearResults');
+                }
+
+                // Test incomplete line
+                gameBoard.setCellValue(19, 5, 0); // Remove one block
+                
+                if (!gameBoard.isLineComplete(19)) {
+                    log('✓ Incomplete line correctly identified', 'success', 'lineClearResults');
+                } else {
+                    log('✗ Incomplete line incorrectly marked as complete', 'error', 'lineClearResults');
+                }
+
+                // Test empty line
+                gameBoard.clear();
+                
+                if (gameBoard.isLineEmpty(19)) {
+                    log('✓ Empty line correctly detected', 'success', 'lineClearResults');
+                } else {
+                    log('✗ Empty line not detected', 'error', 'lineClearResults');
+                }
+
+            } catch (error) {
+                log(`✗ Line completion detection test error: ${error.message}`, 'error', 'lineClearResults');
+            }
+        }
+
+        function testSingleLineClear() {
+            try {
+                const gameBoard = new GameBoard();
+                
+                // Set up board with one complete line and some blocks above
+                for (let col = 0; col < 10; col++) {
+                    gameBoard.setCellValue(19, col, 1); // Complete bottom line
+                }
+                gameBoard.setCellValue(18, 3, 2); // Block above
+                gameBoard.setCellValue(17, 4, 3); // Block two rows above
+                
+                const linesCleared = gameBoard.clearLines();
+                
+                if (linesCleared === 1) {
+                    log('✓ Single line cleared correctly', 'success', 'lineClearResults');
+                } else {
+                    log(`✗ Expected 1 line cleared, got ${linesCleared}`, 'error', 'lineClearResults');
+                }
+
+                // Check that blocks dropped correctly
+                if (gameBoard.getCellValue(19, 3) === 2) {
+                    log('✓ Blocks dropped correctly after line clear', 'success', 'lineClearResults');
+                } else {
+                    log('✗ Blocks did not drop correctly after line clear', 'error', 'lineClearResults');
+                }
+
+                // Check that top line is empty
+                if (gameBoard.isLineEmpty(0)) {
+                    log('✓ New empty line added at top', 'success', 'lineClearResults');
+                } else {
+                    log('✗ New empty line not added at top', 'error', 'lineClearResults');
+                }
+
+            } catch (error) {
+                log(`✗ Single line clear test error: ${error.message}`, 'error', 'lineClearResults');
+            }
+        }
+
+        function testMultipleLineClear() {
+            try {
+                const gameBoard = new GameBoard();
+                
+                // Set up board with multiple complete lines
+                for (let row = 17; row < 20; row++) {
+                    for (let col = 0; col < 10; col++) {
+                        gameBoard.setCellValue(row, col, 1);
+                    }
+                }
+                
+                // Add some blocks above
+                gameBoard.setCellValue(16, 2, 2);
+                gameBoard.setCellValue(15, 5, 3);
+                
+                const linesCleared = gameBoard.clearLines();
+                
+                if (linesCleared === 3) {
+                    log('✓ Multiple lines (3) cleared correctly', 'success', 'lineClearResults');
+                } else {
+                    log(`✗ Expected 3 lines cleared, got ${linesCleared}`, 'error', 'lineClearResults');
+                }
+
+                // Check that blocks dropped correctly
+                if (gameBoard.getCellValue(19, 2) === 2 && gameBoard.getCellValue(18, 5) === 3) {
+                    log('✓ Blocks dropped correctly after multiple line clear', 'success', 'lineClearResults');
+                } else {
+                    log('✗ Blocks did not drop correctly after multiple line clear', 'error', 'lineClearResults');
+                }
+
+            } catch (error) {
+                log(`✗ Multiple line clear test error: ${error.message}`, 'error', 'lineClearResults');
+            }
+        }
+
+        function testLineClearWithGaps() {
+            try {
+                const gameBoard = new GameBoard();
+                
+                // Set up board with complete lines separated by incomplete lines
+                // Complete line at 19
+                for (let col = 0; col < 10; col++) {
+                    gameBoard.setCellValue(19, col, 1);
+                }
+                
+                // Incomplete line at 18
+                for (let col = 0; col < 9; col++) {
+                    gameBoard.setCellValue(18, col, 2);
+                }
+                
+                // Complete line at 17
+                for (let col = 0; col < 10; col++) {
+                    gameBoard.setCellValue(17, col, 3);
+                }
+                
+                const linesCleared = gameBoard.clearLines();
+                
+                if (linesCleared === 2) {
+                    log('✓ Non-consecutive complete lines cleared correctly', 'success', 'lineClearResults');
+                } else {
+                    log(`✗ Expected 2 lines cleared, got ${linesCleared}`, 'error', 'lineClearResults');
+                }
+
+                // Check that incomplete line remains and drops
+                if (gameBoard.getCellValue(19, 0) === 2 && gameBoard.getCellValue(19, 9) === 0) {
+                    log('✓ Incomplete line dropped correctly with gap preserved', 'success', 'lineClearResults');
+                } else {
+                    log('✗ Incomplete line did not drop correctly', 'error', 'lineClearResults');
+                }
+
+            } catch (error) {
+                log(`✗ Line clear with gaps test error: ${error.message}`, 'error', 'lineClearResults');
+            }
+        }
+
+        function visualizeLineClearTests() {
+            const beforeCanvas = document.getElementById('beforeCanvas');
+            const afterCanvas = document.getElementById('afterCanvas');
+            
+            if (!beforeCanvas || !afterCanvas) return;
+            
+            const beforeCtx = beforeCanvas.getContext('2d');
+            const afterCtx = afterCanvas.getContext('2d');
+            
+            // Create test board
+            const gameBoard = new GameBoard();
+            
+            // Set up "before" state
+            for (let col = 0; col < 10; col++) {
+                gameBoard.setCellValue(19, col, 1); // Complete line
+            }
+            for (let col = 0; col < 8; col++) {
+                gameBoard.setCellValue(18, col, 2); // Incomplete line
+            }
+            gameBoard.setCellValue(17, 3, 3); // Floating block
+            
+            // Draw "before" state
+            drawBoardOnCanvas(beforeCtx, gameBoard.getBoard(), beforeCanvas.width, beforeCanvas.height);
+            
+            // Clear lines and draw "after" state
+            gameBoard.clearLines();
+            drawBoardOnCanvas(afterCtx, gameBoard.getBoard(), afterCanvas.width, afterCanvas.height);
+        }
+
+        function drawBoardOnCanvas(ctx, board, canvasWidth, canvasHeight) {
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            
+            const blockWidth = canvasWidth / 10;
+            const blockHeight = canvasHeight / 20;
+            
+            // Draw grid
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            
+            for (let row = 0; row <= 20; row++) {
+                ctx.beginPath();
+                ctx.moveTo(0, row * blockHeight);
+                ctx.lineTo(canvasWidth, row * blockHeight);
+                ctx.stroke();
+            }
+            
+            for (let col = 0; col <= 10; col++) {
+                ctx.beginPath();
+                ctx.moveTo(col * blockWidth, 0);
+                ctx.lineTo(col * blockWidth, canvasHeight);
+                ctx.stroke();
+            }
+            
+            // Draw blocks
+            const colors = ['#000', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff'];
+            
+            for (let row = 0; row < 20; row++) {
+                for (let col = 0; col < 10; col++) {
+                    const cellValue = board[row][col];
+                    if (cellValue > 0) {
+                        ctx.fillStyle = colors[cellValue] || '#ffffff';
+                        ctx.fillRect(col * blockWidth, row * blockHeight, blockWidth, blockHeight);
+                        ctx.strokeStyle = '#000';
+                        ctx.strokeRect(col * blockWidth, row * blockHeight, blockWidth, blockHeight);
+                    }
+                }
+            }
+        }
+
+        // RUN ALL TESTS
+        function runAllTests() {
+            clearResults();
+            
+            setTimeout(() => runTetrominoTests(), 100);
+            setTimeout(() => runCollisionTests(), 500);
+            setTimeout(() => runLineClearTests(), 900);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            updateTestSummary();
+            log('Basic Functionality Test Suite Ready', 'warning', 'tetrominoResults');
+            log('Click "Run All Tests" to start comprehensive testing', 'warning', 'tetrominoResults');
+        });
+    </script>
+</body>
+</html>
